@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SQDT Problem Management Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#071321;--panel:#0d1d30;--panel2:#10243a;--line:#203a56;--ink:#e6f0ff;--muted:#8da6c4;--blue:#3697ff;--cyan:#21d4fd;--green:#19c995;--red:#ff5364;--orange:#ff9e43;--yellow:#ffd34d}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#10243b 0,#071321 55%);color:var(--ink);font:13px/1.45 Inter,system-ui,-apple-system,Segoe UI,sans-serif}button,input,select{font:inherit}.top{min-height:68px;background:linear-gradient(100deg,#07111f,#0b1b2d);border-bottom:1px solid #1d3048;display:flex;align-items:center;gap:14px;padding:10px 22px;color:#e8f1ff}.brandmark{width:42px;height:42px;border-radius:12px;background:linear-gradient(140deg,#1677ef,#19c9e8);display:grid;place-items:center;font-size:27px;box-shadow:0 0 24px #1685ff35}.brandtext strong{font-size:20px;letter-spacing:-.4px}.brandtext strong span{color:#64b7ff}.brandtext small{display:block;color:#91abc8;font-size:11px;margin-top:2px}.topmeta{margin-left:auto;display:flex;align-items:center;gap:9px;font-size:10px;color:#90a8c5}.topmeta b{color:#e8f1ff}.live-dot,.side-mini i{width:7px;height:7px;border-radius:50%;background:#18d69b;display:inline-block;box-shadow:0 0 10px #18d69b70}.topdivider{height:24px;width:1px;background:#203852;margin:0 7px}.repo{padding:10px 22px;border-bottom:1px solid var(--line);color:#56a5ff;background:#091726;font-weight:700}.layout{display:grid;grid-template-columns:190px minmax(0,1fr);min-height:calc(100vh - 88px)}aside.left{border-right:1px solid var(--line);padding:20px 10px;display:flex;flex-direction:column;gap:6px;background:#081624}aside.left a{padding:11px 12px;border-radius:7px;color:#9db3cd;text-decoration:none;font-weight:650}aside.left a:hover,aside.left a.active{background:#153456;color:#62b1ff;border-left:3px solid var(--blue)}.side-label{font-size:9px;letter-spacing:1.5px;color:#607c9c;padding:4px 12px 9px}.side-mini{margin:22px 2px 0;padding:12px 10px;border:1px solid #203b59;border-radius:8px;background:#0b1b2d}.side-mini b{display:block;font-size:9px;letter-spacing:.7px;color:#6f8bab;margin-bottom:10px}.side-mini span{display:block;font-size:11px;color:#c7d9ed}.side-mini small{display:block;color:#829bb8;font-size:9px;line-height:1.5;margin-top:7px}.sidefoot{margin-top:auto;padding:12px;color:var(--muted);font-size:11px;line-height:1.8}main{padding:18px;min-width:0}.heading{display:flex;align-items:center;gap:13px;margin-bottom:16px;flex-wrap:wrap}.shield{width:46px;height:46px;border-radius:13px;background:linear-gradient(140deg,#1677ef,#19c9e8);display:grid;place-items:center;font-size:25px}.heading h1{font-size:24px;margin:0}.heading p{color:var(--muted);margin:4px 0 0}.headright{margin-left:auto;display:flex;gap:9px}.btn{border:1px solid #28547d;border-radius:7px;padding:9px 12px;background:#1266c3;color:white;font-weight:750;cursor:pointer}.btn.secondary{background:#10243a;border-color:#29435e}.btn:disabled{opacity:.6;cursor:wait}.content{display:grid;grid-template-columns:minmax(0,1fr) 225px;gap:13px}.primary{min-width:0}.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin-bottom:12px}.card{background:linear-gradient(145deg,#10233a,#0b1b2c);border:1px solid #203b59;border-radius:9px;padding:13px;min-width:0;box-shadow:0 8px 22px #0002}.kpi{display:flex;align-items:center;gap:11px;min-height:98px}.bubble{width:43px;height:43px;border-radius:50%;display:grid;place-items:center;color:white;font-size:20px;flex-shrink:0;box-shadow:0 0 20px #ffffff12}.red{background:linear-gradient(135deg,#ff4a5f,#c91f47)}.orange{background:linear-gradient(135deg,#ffb347,#f97316)}.green{background:linear-gradient(135deg,#20d69a,#059669)}.blue{background:linear-gradient(135deg,#5ab4ff,#1677ef)}.label{color:#9bb1cc;font-size:12px}.num{font-size:27px;font-weight:850;margin:4px 0}.trend{font-size:10px;color:#829bb8}.charts3{display:grid;grid-template-columns:1.05fr 1fr 1fr;gap:11px;margin-bottom:11px}.charts4{display:grid;grid-template-columns:1.25fr .9fr .9fr .8fr;gap:11px;margin-bottom:11px}.charts2{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:11px}.card h3{font-size:12px;margin:0 0 10px;font-weight:750}.chartbox{height:195px;position:relative}.charts4 .chartbox{height:165px}.filters{display:flex;flex-direction:column;gap:11px}.field{margin-top:9px}.field label{display:block;font-size:10px;font-weight:800;color:#9db4d0;margin-bottom:5px;text-transform:uppercase;letter-spacing:.03em}.field select,.field input{width:100%;padding:8px;border:1px solid #29435e;border-radius:6px;background:#0a1a2b;color:#e6f0ff}.insight{display:flex;gap:8px;margin:13px 0;font-size:11px;color:#c3d4e9;line-height:1.5}.ic{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;color:#061321;flex-shrink:0;font-weight:900}.tablecard{padding:0;overflow:hidden}.tablehead{padding:13px;display:flex;align-items:center;justify-content:space-between;gap:8px}.tablewrap{max-height:390px;overflow:auto}table{border-collapse:collapse;width:100%;font-size:10px;white-space:nowrap}th{position:sticky;top:0;background:#152b43;text-align:left;color:#a9bfd9;font-size:9px;text-transform:uppercase}td,th{padding:9px 10px;border-bottom:1px solid #1c344d}tbody tr:hover{background:#132a42}.pill{border-radius:99px;padding:4px 8px;font-size:9px;font-weight:850;display:inline-block}.open{background:#5b1f31;color:#ff8290}.closed{background:#104638;color:#55e8b4}.sev{background:#523c1a;color:#ffd17b}.note{font-size:10px;color:#819ab7}.datepanel{display:grid;grid-template-columns:repeat(4,minmax(130px,1fr));gap:10px;margin-bottom:12px}.datepanel .field{margin-top:0}.datepanel .field label{font-size:10px}.dateactions{display:flex;gap:8px;align-items:end}.comparegrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:12px}.comparebox{background:#0a1a2b;border:1px solid #203b59;border-radius:8px;padding:12px}.comparebox .label{font-size:11px;color:#9bb1cc}.comparebox .num{font-size:21px}.comparebox .trend{font-size:11px}.positive{color:#ff8290}.negative{color:#55e8b4}.neutral{color:#9bb1cc}.error{display:none;background:#451b2a;border:1px solid #92354b;padding:10px;border-radius:7px;color:#ffc2cb;margin-bottom:10px}
+@media(max-width:1250px){.content{grid-template-columns:1fr}.filters{display:grid;grid-template-columns:repeat(3,1fr)}.charts4{grid-template-columns:repeat(2,1fr)}}@media(max-width:850px){.layout{grid-template-columns:1fr}aside.left{display:none}.kpis{grid-template-columns:repeat(2,1fr)}.charts3{grid-template-columns:1fr}.headright{margin-left:0}.topmeta{flex-wrap:wrap;justify-content:flex-end}}@media(max-width:520px){main{padding:10px}.datepanel,.comparegrid,.kpis,.charts4,.charts2,.filters{grid-template-columns:1fr}.heading h1{font-size:20px}.search{display:none}}
+</style>
+</head>
+<body>
+<header class="top"><div class="brandmark">⬡</div><div class="brandtext"><strong>SQDT <span>Problem Management</span></strong><small>Monitor · Analyze · Resolve</small></div><div class="topmeta"><span class="live-dot"></span><span>Google Sheets API <b id="apiStatus">Connecting…</b></span><span class="topdivider"></span><span>Auto refresh <b>15 min</b></span><span class="topdivider"></span><span>Updated <b id="lastUpdated">—</b></span></div></header>
+<div class="layout">
+<aside class="left"><div class="side-label">WORKSPACE</div><a class="active" href="#overview">▦　Dashboard</a><a href="#incidents">☷　Incident List</a><a href="#analytics">▥　Analytics</a><a href="#reports">▤　Reports & Export</a><a href="#filters">⚙　Filters</a><div class="side-mini"><b>LIVE DATA SOURCE</b><span><i></i> Google Sheets</span><small>Refresh otomatis setiap 15 menit</small></div><div class="sidefoot">◇ &nbsp; Better Service<br>　　 Better Tomorrow</div></aside>
+<main>
+<div class="heading" id="overview"><div><h1>Dashboard Overview</h1><p>Monitoring insiden · Severity · Region · RCA · MTTR · Traffic Loss</p></div><div class="headright"><button class="btn secondary" id="refresh">↻ Refresh data</button><button class="btn" id="export">↓ Export CSV</button></div></div>
+<div id="error" class="error"></div>
+<section class="card" style="margin-bottom:12px"><h3>▦ &nbsp; Date Range Filter</h3><div class="datepanel">
+<div class="field"><label for="fromDate">From Date</label><input type="date" id="fromDate"></div>
+<div class="field"><label for="toDate">To Date</label><input type="date" id="toDate"></div>
+<div class="field"><label for="compareFromDate">Compare From Date</label><input type="date" id="compareFromDate"></div>
+<div class="field"><label for="compareToDate">Compare To Date</label><input type="date" id="compareToDate"></div>
+</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="applyDates">Apply Date Range</button><button class="btn secondary" id="resetDates">Clear Date Range</button><span class="note" id="dateStatus" style="align-self:center">Filter tanggal menggunakan kolom Time Open.</span></div></section>
+<section class="card" style="margin-bottom:12px"><h3>↔ &nbsp; Period Comparison</h3><div class="comparegrid">
+<div class="comparebox"><div class="label">Total Incidents</div><div class="num" id="cmpTotal">—</div><div class="trend" id="cmpTotalDelta">Pilih periode pembanding</div></div>
+<div class="comparebox"><div class="label">Open Incidents</div><div class="num" id="cmpOpen">—</div><div class="trend" id="cmpOpenDelta">Pilih periode pembanding</div></div>
+<div class="comparebox"><div class="label">Closed Incidents</div><div class="num" id="cmpClosed">—</div><div class="trend" id="cmpClosedDelta">Pilih periode pembanding</div></div>
+<div class="comparebox"><div class="label">Avg. MTTR</div><div class="num" id="cmpMttr">—</div><div class="trend" id="cmpMttrDelta">Pilih periode pembanding</div></div>
+</div><div class="chartbox" style="height:230px;margin-top:12px"><canvas id="comparisonChart"></canvas></div><div class="note" id="compareStatus">Atur Compare From Date dan Compare To Date untuk melihat perbandingan.</div></section>
+<div class="content"><div class="primary">
+<section class="kpis">
+<div class="card kpi"><div class="bubble blue">▤</div><div><div class="label">Total Incidents</div><div class="num" id="total">—</div><div class="trend">Sesuai periode & filter</div></div></div>
+<div class="card kpi"><div class="bubble red">!</div><div><div class="label">Critical Incidents</div><div class="num" id="critical">—</div><div class="trend">Prioritas tertinggi</div></div></div>
+<div class="card kpi"><div class="bubble orange">▲</div><div><div class="label">Major Incidents</div><div class="num" id="major">—</div><div class="trend">Prioritas tinggi</div></div></div>
+<div class="card kpi"><div class="bubble green">✓</div><div><div class="label">Resolved / Closed</div><div class="num" id="closed">—</div><div class="trend">Sudah ditutup / selesai</div></div></div>
+<div class="card kpi"><div class="bubble orange">◷</div><div><div class="label">Open Incidents</div><div class="num" id="open">—</div><div class="trend">Masih berlangsung</div></div></div>
+<div class="card kpi"><div class="bubble blue">◴</div><div><div class="label">Avg. MTTR</div><div class="num" id="mttr">—</div><div class="trend">Rata-rata waktu recovery</div></div></div>
+</section>
+<section class="charts3" id="analytics"><div class="card"><h3>▦ &nbsp; Incident Trend</h3><div class="chartbox"><canvas id="trend"></canvas></div></div><div class="card"><h3>◉ &nbsp; By SEVERITY</h3><div class="chartbox"><canvas id="severity"></canvas></div></div><div class="card"><h3>▥ &nbsp; By STATUS</h3><div class="chartbox"><canvas id="status"></canvas></div></div></section>
+<section class="charts4"><div class="card"><h3>Severity Open vs Closed by Region</h3><div class="chartbox"><canvas id="regionOpenClose"></canvas></div></div><div class="card"><h3>By Region (Total)</h3><div class="chartbox"><canvas id="region"></canvas></div></div><div class="card"><h3>By Severity (Open vs Closed)</h3><div class="chartbox"><canvas id="sevOpenClose"></canvas></div></div><div class="card"><h3>By CIRCLE</h3><div class="chartbox"><canvas id="circle"></canvas></div></div></section>
+<section class="charts2" id="reports"><div class="card"><h3>By RCA</h3><div class="chartbox"><canvas id="rca"></canvas></div></div><div class="card"><h3>Traffic Loss by Region</h3><div class="chartbox"><canvas id="traffic"></canvas></div></div></section>
+<section class="card tablecard" id="incidents"><div class="tablehead"><div><h3 style="margin:0">▦ &nbsp; Recent Incidents</h3><div class="note" id="rowCount">Menunggu data…</div></div><input id="search" placeholder="Cari SQDT, RCA, region…" style="padding:8px;border:1px solid #29435e;border-radius:6px;background:#0a1a2b;color:#e6f0ff;width:190px"></div><div class="tablewrap"><table><thead><tr><th>Time Open</th><th>Service Incident Case</th><th>Severity</th><th>Status</th><th>Branch / Node</th><th>Kabupaten</th><th>Region</th><th>Circle</th><th>RCA</th><th>MTTR</th><th>MTTD</th><th>Traffic Loss (TB)</th><th>Achievement CESO</th></tr></thead><tbody id="tbody"></tbody></table></div></section>
+</div>
+<aside class="filters" id="filters"><div class="card"><h3>▽ &nbsp; Filter & Options</h3><div class="field"><label>SQDT / Search ID</label><input id="sqdtSearch" placeholder="SQDT-…"></div><div class="field"><label>Severity</label><select id="severityFilter"><option value="">All</option></select></div><div class="field"><label>Region</label><select id="regionFilter"><option value="">All</option></select></div><div class="field"><label>Status</label><select id="statusFilter"><option value="">All</option></select></div><div class="field"><label>Circle</label><select id="circleFilter"><option value="">All</option></select></div><div class="field"><label>RCA</label><select id="rcaFilter"><option value="">All</option></select></div><div class="field"><label>Branch / Node</label><select id="branchFilter"><option value="">All</option></select></div><div class="field"><button class="btn" id="reset" style="width:100%">Reset Filters</button></div></div>
+<div class="card"><h3>♧ &nbsp; Insights</h3><div class="insight"><span class="ic" style="background:#ffbd32">!</span><span id="i1">Insight akan dihitung dari data.</span></div><div class="insight"><span class="ic" style="background:#19c995">↻</span><span id="i2">Rata-rata MTTR akan ditampilkan.</span></div><div class="insight"><span class="ic" style="background:#3697ff">⌖</span><span id="i3">Region dengan incident terbanyak.</span></div></div>
+<div class="card note">◉ &nbsp; <b>SQDT Problem Management</b><br><br>Dark · Responsive · Live Google Sheets</div></aside>
+</div>
+<div class="note" style="margin-top:12px">Sumber: Google Sheets melalui Google Apps Script API. Refresh otomatis setiap 15 menit.</div>
+</main></div>
+
+<script>
+const GOOGLE_SHEETS_API_URL = "https://script.google.com/macros/s/AKfycbz34GvjpKG4PO78KsEvK8kcgZGADEBYJMSRcarKWSGpdik0rvjbfp5Yn1eTfKeMok0A/exec";
+let all = [], charts = {};
+const $ = id => document.getElementById(id);
+const s = v => String(v ?? "").trim();
+const get = (r, names) => {
+  const keys = Object.keys(r);
+  for (const n of names) {
+    const k = keys.find(x => x.trim().toLowerCase() === n.toLowerCase());
+    if (k) return r[k];
+  }
+  return "";
+};
+const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({
+  "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+}[c]));
+const uniq = a => [...new Set(a.map(s).filter(Boolean))].sort();
+
+function parseIncidentDate(value) {
+  const raw = s(value);
+  if (!raw) return null;
+  // Remove time suffix while preserving the date part.
+  let m = raw.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+  if (m) return validLocalDate(+m[1], +m[2], +m[3]);
+  // Indonesian dates: DD/MM/YYYY or DD-MM-YYYY; tolerate time after date.
+  m = raw.match(/^(\d{1,2})[/. -](\d{1,2})[/. -](\d{4})(?:\b|$)/);
+  if (m) return validLocalDate(+m[3], +m[2], +m[1]);
+  // US display dates: MM/DD/YYYY (for example 10/25/2026).
+  m = raw.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})/);
+  if (m) {
+    const a = +m[1], b = +m[2], y = +m[3];
+    if (a > 12) return validLocalDate(y, b, a);
+    if (b > 12) return validLocalDate(y, a, b);
+    return validLocalDate(y, b, a); // default DD/MM/YYYY when ambiguous
+  }
+  // Google Sheets serial date number (days from 1899-12-30).
+  if (/^\d{5}(?:\.\d+)?$/.test(raw)) {
+    const d = new Date(Date.UTC(1899, 11, 30) + Number(raw) * 86400000);
+    return validLocalDate(d.getUTCFullYear(), d.getUTCMonth()+1, d.getUTCDate());
+  }
+  const d = new Date(raw);
+  return Number.isNaN(d.getTime()) ? null : validLocalDate(d.getFullYear(), d.getMonth()+1, d.getDate());
+}
+function validLocalDate(y, m, d) {
+  const out = new Date(y, m-1, d);
+  return out.getFullYear() === y && out.getMonth() === m-1 && out.getDate() === d ? out : null;
+}
+function dateKey(d) {
+  if (!d) return "";
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+function norm(r) {
+  const id = s(get(r, ["Service Incident Case", "SERVICE INCIDENT CASE", "SQDT", "SQDT ID", "Incident ID", "INCIDENT ID"]));
+  // Support common header variants returned by Apps Script / Sheets.
+  let d = parseIncidentDate(get(r, [
+    "Time Open", "TIME OPEN", "Time_Open", "TIME_OPEN", "Time Open Date", "Open Time",
+    "Incident Date", "INCIDENT DATE", "Incident_Date", "INCIDENT_DATE",
+    "Tanggal Incident", "Tanggal Insiden", "Tanggal", "Date", "Created Date",
+    "Incident Created Date", "Initial Posting", "Initial Posting Date"
+  ]));
+  // Fallback: some datasets encode YYYYMMDD in the SQDT identifier.
+  if (!d) {
+    const m = id.match(/SQDT[-_ ]?(\d{4})(\d{2})(\d{2})/i);
+    if (m) d = validLocalDate(+m[1], +m[2], +m[3]);
+  }
+  return {
+    id,
+    sev: s(get(r, ["SEVERITY"])),
+    status: s(get(r, ["Status","STATUS"])).toUpperCase() || "UNKNOWN",
+    branch: s(get(r, ["BRANCH / NODE","BRANCH/NODE","BRANCH"])),
+    kab: s(get(r, ["KABUPATEN"])),
+    region: s(get(r, ["REGION"])) || "Unknown",
+    circle: s(get(r, ["CIRCLE"])) || "Unknown",
+    rca: s(get(r, ["RCA"])) || "Unknown",
+    mttr: s(get(r, ["MTTR"])),
+    mttd: s(get(r, ["MTTD 1 (terhadap Initial Posting)","MTTD"])),
+    traffic: Number(String(get(r, ["TRAFFIC LOSS (TB) TOTAL","TRAFFIC LOSS"])).replace(",", ".")) || 0,
+    ceso: s(get(r, ["Achievement CESO","ACHIEVEMENT CESO"])),
+    d
+  };
+}
+function isClosed(r) { return /CLOSED|CLOSE|RESOLVED|COMPLETE/.test(r.status); }
+function num(v) {
+  let raw = String(v ?? "").trim();
+  if (!raw) return null;
+  // Preserve decimal points; handle comma-decimal and thousands separators.
+  if (raw.includes(",") && raw.includes(".")) {
+    if (raw.lastIndexOf(",") > raw.lastIndexOf(".")) raw = raw.replace(/\./g, "").replace(",", ".");
+    else raw = raw.replace(/,/g, "");
+  } else if (raw.includes(",")) raw = raw.replace(",", ".");
+  const n = Number(raw);
+  return Number.isFinite(n) ? n : null;
+}
+function fill(id, vals) {
+  const e = $(id), old = e.value;
+  e.innerHTML = '<option value="">All</option>' +
+    vals.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join("");
+  if (vals.includes(old)) e.value = old;
+}
+function count(rows, k) {
+  return rows.reduce((o, r) => {
+    const v = r[k] || "Unknown";
+    o[v] = (o[v] || 0) + 1;
+    return o;
+  }, {});
+}
+function showError(t) {
+  $("error").style.display = "block";
+  $("error").textContent = t;
+}
+function makeChart(id, type, labels, datasets, stacked = false) {
+  if (charts[id]) charts[id].destroy();
+  charts[id] = new Chart($(id), {
+    type, data: { labels, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: {
+        display: type !== "bar" || datasets.length > 1,
+        position: "bottom",
+        labels: { color:"#a9bfd9", boxWidth:9, font:{size:10} }
+      }},
+      scales: type === "bar" ? {
+        x: { stacked, grid:{color:"#1c344d"}, ticks:{color:"#9bb1cc",font:{size:9}} },
+        y: { stacked, beginAtZero:true, grid:{color:"#1c344d"}, ticks:{color:"#9bb1cc",precision:0,font:{size:9}} }
+      } : {}
+    }
+  });
+}
+function filtered(source = all, useMainDates = true) {
+  const q = ($("sqdtSearch").value + " " + $("search").value).toLowerCase();
+  const from = useMainDates ? $("fromDate").value : "";
+  const to = useMainDates ? $("toDate").value : "";
+  return source.filter(r =>
+    (!from || (r.d && dateKey(r.d) >= from)) &&
+    (!to || (r.d && dateKey(r.d) <= to)) &&
+    (!q || [r.id,r.sev,r.status,r.branch,r.kab,r.region,r.circle,r.rca].join(" ").toLowerCase().includes(q)) &&
+    (!$("severityFilter").value || r.sev === $("severityFilter").value) &&
+    (!$("regionFilter").value || r.region === $("regionFilter").value) &&
+    (!$("statusFilter").value || r.status === $("statusFilter").value) &&
+    (!$("circleFilter").value || r.circle === $("circleFilter").value) &&
+    (!$("rcaFilter").value || r.rca === $("rcaFilter").value) &&
+    (!$("branchFilter").value || r.branch === $("branchFilter").value)
+  );
+}
+function summarize(rows) {
+  const op = rows.filter(r => !isClosed(r));
+  const cl = rows.filter(isClosed);
+  const mts = rows.map(r => num(r.mttr)).filter(v => v !== null && v >= 0);
+  return { total: rows.length, open: op.length, closed: cl.length,
+    mttr: mts.length ? mts.reduce((a,b)=>a+b,0)/mts.length : null };
+}
+function setDelta(id, current, previous, suffix = "") {
+  const el = $(id);
+  if (current === null || previous === null || !Number.isFinite(current) || !Number.isFinite(previous)) {
+    el.textContent = "Tidak cukup data untuk dibandingkan"; el.className = "trend neutral"; return;
+  }
+  const delta = current - previous;
+  const pct = previous === 0 ? (current === 0 ? "0.0" : "—") : ((delta / Math.abs(previous)) * 100).toFixed(1);
+  const sign = delta > 0 ? "+" : "";
+  el.textContent = `${sign}${delta.toFixed(suffix ? 2 : 0)}${suffix} (${pct === "—" ? pct : sign + pct + "%"}) vs pembanding`;
+  // For incident counts, increases are highlighted; this is descriptive, not a quality judgment.
+  el.className = "trend " + (delta > 0 ? "positive" : delta < 0 ? "negative" : "neutral");
+}
+function renderComparison() {
+  const cf = $("compareFromDate").value, ct = $("compareToDate").value;
+  const status = $("compareStatus");
+  if (!cf || !ct) {
+    ["cmpTotal","cmpOpen","cmpClosed","cmpMttr"].forEach(id => $(id).textContent = "—");
+    ["cmpTotalDelta","cmpOpenDelta","cmpClosedDelta","cmpMttrDelta"].forEach(id => { $(id).textContent = "Pilih periode pembanding"; $(id).className = "trend neutral"; });
+    status.textContent = "Atur Compare From Date dan Compare To Date untuk melihat perbandingan.";
+    if (charts.comparisonChart) { charts.comparisonChart.destroy(); delete charts.comparisonChart; }
+    return;
+  }
+  if (cf > ct) { status.textContent = "Compare From Date tidak boleh melewati Compare To Date."; return; }
+  const compareRows = filtered(all, false).filter(r => r.d && dateKey(r.d) >= cf && dateKey(r.d) <= ct);
+  const a = summarize(filtered());
+  const b = summarize(compareRows);
+  $("cmpTotal").textContent = b.total.toLocaleString("id-ID");
+  $("cmpOpen").textContent = b.open.toLocaleString("id-ID");
+  $("cmpClosed").textContent = b.closed.toLocaleString("id-ID");
+  $("cmpMttr").textContent = b.mttr === null ? "—" : b.mttr.toFixed(2);
+  setDelta("cmpTotalDelta", a.total, b.total);
+  setDelta("cmpOpenDelta", a.open, b.open);
+  setDelta("cmpClosedDelta", a.closed, b.closed);
+  setDelta("cmpMttrDelta", a.mttr, b.mttr, "");
+  if (charts.comparisonChart) charts.comparisonChart.destroy();
+  charts.comparisonChart = new Chart($("comparisonChart"), {
+    type: "bar",
+    data: { labels: ["Total Incidents", "Open Incidents", "Closed Incidents"], datasets: [
+      { label: "Periode Utama", data: [a.total, a.open, a.closed], backgroundColor: "#3697ff" },
+      { label: "Periode Pembanding", data: [b.total, b.open, b.closed], backgroundColor: "#19c995" }
+    ]},
+    options: { responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{position:"bottom",labels:{color:"#a9bfd9",boxWidth:10,font:{size:10}}} },
+      scales:{ x:{grid:{color:"#1c344d"},ticks:{color:"#9bb1cc"}}, y:{beginAtZero:true,grid:{color:"#1c344d"},ticks:{color:"#9bb1cc",precision:0}} }
+    }
+  });
+  status.textContent = `Periode utama: ${$("fromDate").value || "semua tanggal"} s.d. ${$("toDate").value || "semua tanggal"} (${a.total} insiden); periode pembanding: ${cf} s.d. ${ct} (${b.total} insiden). Perbandingan memakai pilihan filter kategori/search yang sama pada kedua periode.`;
+}
+function render() {
+  const from = $("fromDate").value, to = $("toDate").value;
+  if (from && to && from > to) {
+    $("dateStatus").textContent = "From Date tidak boleh melewati To Date.";
+    return;
+  }
+  $("dateStatus").textContent = `Kolom tanggal: Time Open · ${from || "awal data"} s.d. ${to || "akhir data"}`;
+  const rows = filtered();
+  const op = rows.filter(r => !isClosed(r));
+  const cl = rows.filter(isClosed);
+  const mt = rows.map(r => num(r.mttr)).filter(v => v !== null && v >= 0);
+
+  $("total").textContent = rows.length.toLocaleString("id-ID");
+  $("critical").textContent = rows.filter(r => /CRITICAL|CRIT|P1|SEV1/.test(r.sev.toUpperCase())).length.toLocaleString("id-ID");
+  $("major").textContent = rows.filter(r => /MAJOR|P2|SEV2/.test(r.sev.toUpperCase())).length.toLocaleString("id-ID");
+  $("open").textContent = op.length.toLocaleString("id-ID");
+  $("closed").textContent = cl.length.toLocaleString("id-ID");
+  $("mttr").textContent = mt.length ? (mt.reduce((a,b)=>a+b,0)/mt.length).toFixed(2) : "—";
+
+  const dated = rows.filter(r => r.d).map(r => ({...r, day:dateKey(r.d)}));
+  const dt = count(dated, "day"), days = Object.keys(dt).sort();
+  makeChart("trend", "line", days, [{
+    label:"Incidents", data:days.map(k=>dt[k]),
+    borderColor:"#3697ff", backgroundColor:"#3697ff24", fill:true, tension:.3
+  }]);
+
+  const sev = count(rows, "sev");
+  makeChart("severity", "doughnut", Object.keys(sev), [{
+    data:Object.values(sev),
+    backgroundColor:["#ff5364","#ff9e43","#ffd34d","#19c995","#3697ff","#a78bfa"]
+  }]);
+  makeChart("status", "doughnut", ["Open","Closed"], [{
+    data:[op.length,cl.length], backgroundColor:["#ff5364","#19c995"]
+  }]);
+
+  const regs = uniq(rows.map(r=>r.region));
+  makeChart("regionOpenClose", "bar", regs, [
+    {label:"Open",data:regs.map(x=>rows.filter(r=>r.region===x&&!isClosed(r)).length),backgroundColor:"#ff5364"},
+    {label:"Closed",data:regs.map(x=>rows.filter(r=>r.region===x&&isClosed(r)).length),backgroundColor:"#19c995"}
+  ], true);
+  const regc = count(rows, "region");
+  makeChart("region", "bar", Object.keys(regc), [{
+    label:"Incidents",data:Object.values(regc),backgroundColor:"#3697ff"
+  }]);
+  const sv = uniq(rows.map(r=>r.sev));
+  makeChart("sevOpenClose", "bar", sv, [
+    {label:"Open",data:sv.map(x=>rows.filter(r=>r.sev===x&&!isClosed(r)).length),backgroundColor:"#ff5364"},
+    {label:"Closed",data:sv.map(x=>rows.filter(r=>r.sev===x&&isClosed(r)).length),backgroundColor:"#19c995"}
+  ], true);
+  const cir = count(rows, "circle");
+  makeChart("circle", "doughnut", Object.keys(cir), [{
+    data:Object.values(cir),backgroundColor:["#3697ff","#19c995","#ff9e43","#a78bfa","#21d4fd","#ff5364"]
+  }]);
+  const rc = count(rows, "rca");
+  makeChart("rca", "doughnut", Object.keys(rc).slice(0,10), [{
+    data:Object.values(rc).slice(0,10),backgroundColor:["#3697ff","#19c995","#ff9e43","#a78bfa","#21d4fd","#ff5364","#ffd34d"]
+  }]);
+  const tr = {};
+  rows.forEach(r => tr[r.region] = (tr[r.region] || 0) + r.traffic);
+  makeChart("traffic", "bar", Object.keys(tr), [{
+    label:"Traffic Loss (TB)",data:Object.values(tr),backgroundColor:"#21d4fd"
+  }]);
+
+  $("i1").textContent = `${op.length} incident masih Open dari ${rows.length} incident terfilter.`;
+  $("i2").textContent = mt.length
+    ? `Rata-rata MTTR ${(mt.reduce((a,b)=>a+b,0)/mt.length).toFixed(2)} berdasarkan ${mt.length} nilai valid.`
+    : "MTTR belum tersedia pada data terfilter.";
+  const top = Object.entries(regc).sort((a,b)=>b[1]-a[1])[0];
+  $("i3").textContent = top
+    ? `Region ${top[0]} memiliki incident terbanyak (${top[1]}).`
+    : "Belum ada data region.";
+
+  $("tbody").innerHTML = rows.slice(0,500).map(r => `<tr>
+    <td>${esc(dateKey(r.d) || "—")}</td><td>${esc(r.id)}</td><td><span class="pill sev">${esc(r.sev)}</span></td>
+    <td><span class="pill ${isClosed(r)?"closed":"open"}">${esc(r.status)}</span></td>
+    <td>${esc(r.branch)}</td><td>${esc(r.kab)}</td><td>${esc(r.region)}</td>
+    <td>${esc(r.circle)}</td><td>${esc(r.rca)}</td><td>${esc(r.mttr)}</td>
+    <td>${esc(r.mttd)}</td><td>${r.traffic}</td><td>${esc(r.ceso)}</td></tr>`).join("");
+
+  $("rowCount").textContent =
+    `Menampilkan ${Math.min(500,rows.length).toLocaleString("id-ID")} dari ${rows.length.toLocaleString("id-ID")} baris terfilter`;
+  renderComparison();
+}
+
+/* Mengambil satu halaman dari Apps Script dengan JSONP. */
+function fetchSheetPage(offset, limit = 1000) {
+  return new Promise((resolve, reject) => {
+    const callbackName = "sqdtPage_" + Date.now() + "_" +
+      Math.floor(Math.random() * 1000000);
+    const script = document.createElement("script");
+    const url = new URL(GOOGLE_SHEETS_API_URL);
+
+    url.searchParams.set("callback", callbackName);
+    url.searchParams.set("offset", String(offset));
+    url.searchParams.set("limit", String(limit));
+    url.searchParams.set("_", String(Date.now()));
+
+    let finished = false;
+    const timer = setTimeout(() => {
+      finish(new Error("Timeout mengambil halaman pada offset " + offset));
+    }, 60000);
+
+    function finish(error, result) {
+      if (finished) return;
+      finished = true;
+      clearTimeout(timer);
+      script.remove();
+      try { delete window[callbackName]; }
+      catch (_) { window[callbackName] = undefined; }
+      if (error) reject(error);
+      else resolve(result);
+    }
+
+    window[callbackName] = result => {
+      if (!result || result.success !== true) {
+        finish(new Error(result?.error || "Respons API tidak valid."));
+        return;
+      }
+      if (!Array.isArray(result.data)) {
+        finish(new Error("Respons API tidak memiliki array data."));
+        return;
+      }
+      finish(null, result);
+    };
+
+    script.onerror = () => finish(new Error(
+      "Gagal memuat Apps Script pada offset " + offset
+    ));
+    script.src = url.href;
+    document.head.appendChild(script);
+  });
+}
+
+/* Mengambil semua halaman sampai seluruh data diterima. */
+async function fetchAllSheetData() {
+  const pageSize = 1000;
+  let offset = 0;
+  let total = null;
+  const records = [];
+
+  do {
+    const result = await fetchSheetPage(offset, pageSize);
+
+    if (total === null) {
+      total = Number(result.total);
+      if (!Number.isFinite(total) || total < 0) {
+        throw new Error("Jumlah total data API tidak valid.");
+      }
+    }
+
+    records.push(...result.data);
+    console.log(
+      `Progres pemuatan: ${Math.min(offset + result.data.length,total)} dari ${total}`
+    );
+
+    // Cegah loop tak berujung jika API mengembalikan halaman kosong sebelum waktunya.
+    if (result.data.length === 0 && offset < total) {
+      throw new Error(
+        "API mengembalikan halaman kosong pada offset " + offset +
+        " sebelum semua data selesai dimuat."
+      );
+    }
+
+    offset += result.data.length;
+    if (result.data.length < pageSize) break;
+  } while (offset < total);
+
+  console.log("Selesai mengambil halaman. Jumlah baris diterima:", records.length);
+  return records;
+}
+
+let isLoading = false;
+
+async function load() {
+  if (isLoading) return;
+  isLoading = true;
+  $("refresh").disabled = true;
+  $("refresh").textContent = "Memuat data…";
+  $("error").style.display = "none";
+
+  try {
+    const records = await fetchAllSheetData();
+    all = records.map(norm).filter(r => r.id || r.sev || r.region);
+
+    if (!all.length) {
+      throw new Error("Tidak ada data insiden yang dapat ditampilkan.");
+    }
+
+    fill("severityFilter", uniq(all.map(r=>r.sev)));
+    fill("regionFilter", uniq(all.map(r=>r.region)));
+    fill("statusFilter", uniq(all.map(r=>r.status)));
+    fill("circleFilter", uniq(all.map(r=>r.circle)));
+    fill("rcaFilter", uniq(all.map(r=>r.rca)));
+    fill("branchFilter", uniq(all.map(r=>r.branch)));
+
+    render();
+    const stamp = new Date().toLocaleString("id-ID");
+    $("apiStatus").textContent = "Connected";
+    $("apiStatus").style.color = "#19c995";
+    $("lastUpdated").textContent = stamp;
+    $("rowCount").textContent =
+      `Menampilkan ${Math.min(500,filtered().length).toLocaleString("id-ID")} dari ${filtered().length.toLocaleString("id-ID")} baris terfilter · total data dimuat ${all.length.toLocaleString("id-ID")} · diperbarui ${stamp}`;
+
+    console.log("SQDT API berhasil:", {
+      barisDiterima: records.length,
+      insidenDitampilkan: all.length,
+      waktu: stamp
+    });
+  } catch (error) {
+    $("apiStatus").textContent = "Connection error";
+    $("apiStatus").style.color = "#ff5364";
+    showError("Gagal membaca data Google Sheets: " + error.message);
+    console.error("SQDT DATA ERROR:", error);
+  } finally {
+    isLoading = false;
+    $("refresh").disabled = false;
+    $("refresh").textContent = "↻ Refresh data";
+  }
+}
+
+["sqdtSearch","search","severityFilter","regionFilter","statusFilter","circleFilter","rcaFilter","branchFilter"]
+  .forEach(id => $(id).addEventListener("input", render));
+
+$("refresh").onclick = load;
+$("applyDates").onclick = () => {
+  const f = $("fromDate").value, t = $("toDate").value;
+  const cf = $("compareFromDate").value, ct = $("compareToDate").value;
+  if (f && t && f > t) { showError("From Date tidak boleh melewati To Date."); return; }
+  if (cf && ct && cf > ct) { showError("Compare From Date tidak boleh melewati Compare To Date."); return; }
+  $("error").style.display = "none";
+  render();
+};
+$("resetDates").onclick = () => {
+  ["fromDate","toDate","compareFromDate","compareToDate"].forEach(id => $(id).value = "");
+  $("error").style.display = "none";
+  render();
+};
+$("reset").onclick = () => {
+  ["sqdtSearch","search","severityFilter","regionFilter","statusFilter","circleFilter","rcaFilter","branchFilter"]
+    .forEach(id => $(id).value = "");
+  render();
+};
+$("export").onclick = () => {
+  const a = document.createElement("a");
+  const csv = Papa.unparse(filtered().map(r => ({
+    "Service Incident Case":r.id,"Time Open":dateKey(r.d),"SEVERITY":r.sev,"Status":r.status,
+    "BRANCH / NODE":r.branch,"KABUPATEN":r.kab,"REGION":r.region,
+    "CIRCLE":r.circle,"RCA":r.rca,"MTTR":r.mttr,
+    "MTTD 1 (terhadap Initial Posting)":r.mttd,
+    "TRAFFIC LOSS (TB) TOTAL":r.traffic,"Achievement CESO":r.ceso
+  })));
+  const blobUrl = URL.createObjectURL(new Blob([csv], {type:"text/csv;charset=utf-8;"}));
+  a.href = blobUrl;
+  a.download = "sqdt-filtered.csv";
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+};
+
+load();
+setInterval(load, 15 * 60 * 1000);
+</script>
+</body>
+</html>
