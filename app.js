@@ -2,7 +2,7 @@
  * Source schema: Code.gs response {success, headers, data, total, updatedAt}
  * MTTD source: MTTD 1 (terhadap Initial Posting)
  */
-const GOOGLE_SHEETS_API_URL = "Phttps://script.google.com/macros/s/AKfycbz34GvjpKG4PO78KsEvK8kcgZGADEBYJMSRcarKWSGpdik0rvjbfp5Yn1eTfKeMok0A/exec";
+const GOOGLE_SHEETS_API_URL = "https://script.google.com/macros/s/AKfycbz34GvjpKG4PO78KsEvK8kcgZGADEBYJMSRcarKWSGpdik0rvjbfp5Yn1eTfKeMok0A/exec";
 const PAGE_SIZE = 10;
 const COLORS = {cyan:"#15d9ff",blue:"#178fff",green:"#00e6ad",red:"#ff537b",orange:"#ffb340",purple:"#b58aff"};
 
