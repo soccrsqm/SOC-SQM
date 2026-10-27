@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SQM COMMAND CENTER | Problem Management 2025</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="app-shell">
+<aside class="sidebar">
+  <div class="brand-mark">⌁</div><div class="brand"><b>SQM COMMAND</b><span>CENTER · 2025</span></div>
+  <nav><a class="active" href="#overview">◈ <span>Overview</span></a><a href="#severity">◉ <span>Severity</span></a><a href="#rca">⌘ <span>RCA Analysis</span></a><a href="#trends">⌁ <span>Trend Analysis</span></a><a href="#records">▤ <span>SQDT Records</span></a></nav>
+  <div class="side-bottom"><span class="pulse"></span> GOOGLE SHEETS <small>Live data connection</small></div>
+</aside>
+<main>
+<header class="topbar"><div><div class="eyebrow">PROBLEM MANAGEMENT / MONITORING</div><h1>SQM <em>COMMAND CENTER</em></h1><p>Faster Resolution <span>•</span> Better Network <span>•</span> Higher Service Quality</p></div><div class="header-right"><span class="live"><i></i> LIVE SOURCE</span><button id="refreshBtn" class="btn secondary">↻ Refresh data</button><div class="updated" id="lastUpdated">Last update: —</div></div></header>
+<section class="filters panel" id="overview">
+  <div class="filter-heading"><div><span class="eyebrow">CONTROL PANEL</span><h2>Filter & Compare</h2></div><div class="filter-actions"><button id="applyBtn" class="btn primary">Apply filters</button><button id="resetBtn" class="btn secondary">Reset</button></div></div>
+  <div class="filter-grid">
+    <label class="filter compare-toggle"><span>Compare mode</span><div class="toggle-row"><input type="checkbox" id="compareToggle" checked><span>Compare 2 periods</span></div></label>
+    <label><span>Current period · Start</span><input type="date" id="dateStart"></label>
+    <label><span>Current period · End</span><input type="date" id="dateEnd"></label>
+    <label><span>Compare period · Start</span><input type="date" id="compareStart"></label>
+    <label><span>Compare period · End</span><input type="date" id="compareEnd"></label>
+    <label><span>Severity</span><select id="severity"><option value="All">All severities</option><option>P1</option><option>P2</option><option>P3</option><option>L1</option><option>L2</option></select></label>
+    <label><span>Status</span><select id="status"><option value="All">Open + Closed</option><option value="Open">Open</option><option value="Closed">Closed</option></select></label>
+    <label><span>RCA</span><select id="rca"><option value="All">All RCA</option></select></label>
+    <label class="search-label"><span>Search SQDT</span><input id="search" type="search" placeholder="Search SQDT number…"></label>
+  </div>
+  <div class="filter-note">All charts and KPI update with the selected filters. Compare uses two independent date ranges.</div>
+</section>
+<section class="kpi-grid">
+  <article class="kpi panel accent-cyan"><div class="kpi-top"><span>Total SQDT</span><b class="kpi-icon">▤</b></div><strong id="kpiTotal">—</strong><small id="deltaTotal">Unique SQDT records</small><div class="sparkline"><i style="width:80%"></i><i style="width:58%"></i><i style="width:72%"></i><i style="width:92%"></i><i style="width:64%"></i><i style="width:100%"></i></div></article>
+  <article class="kpi panel accent-red"><div class="kpi-top"><span>Open</span><b class="kpi-icon">↗</b></div><strong id="kpiOpen">—</strong><small id="openShare">Currently open</small><div class="mini-track"><i id="openBar"></i></div></article>
+  <article class="kpi panel accent-green"><div class="kpi-top"><span>Closed</span><b class="kpi-icon">✓</b></div><strong id="kpiClosed">—</strong><small id="closedShare">Currently closed</small><div class="mini-track"><i id="closedBar"></i></div></article>
+  <article class="kpi panel accent-orange"><div class="kpi-top"><span>MTTR</span><b class="kpi-icon">◷</b></div><strong id="kpiMttr">— <small>jam</small></strong><small>Average resolution time</small><div class="metric-line"></div></article>
+  <article class="kpi panel accent-purple"><div class="kpi-top"><span>MTTD 1</span><b class="kpi-icon">◴</b></div><strong id="kpiMttd">— <small>jam</small></strong><small>Terhadap Initial Posting</small><div class="metric-line"></div></article>
+  <article class="kpi panel accent-blue"><div class="kpi-top"><span>Traffic Loss</span><b class="kpi-icon">⌁</b></div><strong id="kpiTraffic">— <small>TB</small></strong><small>Total traffic loss</small><div class="metric-line"></div></article>
+  <article class="kpi panel accent-teal"><div class="kpi-top"><span>Achievement CESO</span><b class="kpi-icon">◎</b></div><strong id="kpiCeso">—</strong><small>Average achievement</small><div class="mini-track"><i id="cesoBar"></i></div></article>
+</section>
+<section class="severity-strip panel" id="severity"><div class="section-title"><div><span class="eyebrow">SEVERITY MONITOR</span><h2>Severity Distribution</h2></div><span class="subtle">P1 / P2 / P3 / L1 / L2</span></div><div class="severity-cards" id="severityCards"></div></section>
+<section class="charts-grid" id="trends">
+  <article class="panel chart-card chart-wide"><div class="section-title"><div><span class="eyebrow">VOLUME MONITOR</span><h2>SQDT Trend <span class="muted">/ current vs compare</span></h2></div><span class="legend-dot">Current <i></i> Compare <b></b></span></div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></article>
+  <article class="panel chart-card"><div class="section-title"><div><span class="eyebrow">STATUS MONITOR</span><h2>Open vs Closed</h2></div></div><div class="chart-wrap short"><canvas id="statusChart"></canvas></div><div class="chart-foot" id="statusFoot"></div></article>
+  <article class="panel chart-card"><div class="section-title"><div><span class="eyebrow">ROOT CAUSE</span><h2>RCA Analysis</h2></div></div><div class="chart-wrap short"><canvas id="rcaChart"></canvas></div></article>
+  <article class="panel chart-card"><div class="section-title"><div><span class="eyebrow">RESOLUTION PERFORMANCE</span><h2>MTTR & MTTD 1</h2></div></div><div class="chart-wrap short"><canvas id="timeChart"></canvas></div></article>
+  <article class="panel chart-card"><div class="section-title"><div><span class="eyebrow">SERVICE IMPACT</span><h2>Traffic Loss</h2></div></div><div class="chart-wrap short"><canvas id="trafficChart"></canvas></div></article>
+  <article class="panel chart-card"><div class="section-title"><div><span class="eyebrow">SERVICE QUALITY</span><h2>Achievement CESO</h2></div></div><div class="ceso-display"><div class="ceso-ring" id="cesoRing"><div><strong id="cesoRingValue">—</strong><small>CESO AVG.</small></div></div><div class="ceso-copy"><b id="cesoRecords">— records</b><span>Average based on filtered SQDT</span><span class="subtle">Values are calculated from available source rows.</span></div></div></article>
+</section>
+<section class="panel records" id="records">
+  <div class="section-title table-title"><div><span class="eyebrow">INCIDENT EXPLORER</span><h2>SQDT Records <span class="count-pill" id="rowCount">0 rows</span></h2></div><button id="exportBtn" class="btn secondary">⇩ Export CSV</button></div>
+  <div class="table-scroll"><table><thead><tr><th>#</th><th>SQDT</th><th>Date</th><th>Severity</th><th>Status</th><th>RCA</th><th>MTTR (jam)</th><th>MTTD 1 (jam)</th><th>Traffic Loss (TB)</th><th>Achievement CESO</th></tr></thead><tbody id="tableBody"><tr><td colspan="10" class="empty">Menunggu koneksi Google Sheets…</td></tr></tbody></table></div>
+  <div class="table-footer"><span id="tableSummary">Connect Google Sheets to load records.</span><div><button class="btn secondary small" id="prevBtn">← Prev</button><span id="pageLabel">Page 1</span><button class="btn secondary small" id="nextBtn">Next →</button></div></div>
+</section>
+<footer><span>SQM COMMAND CENTER <b>•</b> Problem Management 2025</span><span>DATA-DRIVEN <b>·</b> FASTER ACTION <b>·</b> BETTER SERVICE</span></footer>
+<div id="toast" class="toast"></div>
+</main></div>
+<script src="app.js"></script>
+</body></html>
