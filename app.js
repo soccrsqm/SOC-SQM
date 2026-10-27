@@ -6,6 +6,16 @@ const GOOGLE_SHEETS_API_URL = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
 const PAGE_SIZE = 10;
 const COLORS = {cyan:"#15d9ff",blue:"#178fff",green:"#00e6ad",red:"#ff537b",orange:"#ffb340",purple:"#b58aff"};
 
+const REFRESH_INTERVAL = 15 * 60 * 1000;
+
+async function refreshDashboard() {
+  // Ambil data terbaru dari Google Sheets API.
+  // Perbarui dashboard hanya jika respons API valid.
+}
+
+refreshDashboard();
+setInterval(refreshDashboard, REFRESH_INTERVAL);
+
 let allRows = [];
 let filteredRows = [];
 let currentPage = 1;
