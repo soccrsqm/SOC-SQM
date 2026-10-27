@@ -8,12 +8,12 @@ const COLORS = {cyan:"#15d9ff",blue:"#178fff",green:"#00e6ad",red:"#ff537b",oran
 
 const REFRESH_INTERVAL = 15 * 60 * 1000;
 
-async function refreshDashboard() {
-  // Ambil data terbaru dari Google Sheets API.
-  // Perbarui dashboard hanya jika respons API valid.
+function refreshDashboard() {
+  return loadData().catch(error => {
+    console.error("Refresh dashboard gagal:", error);
+  });
 }
 
-refreshDashboard();
 setInterval(refreshDashboard, REFRESH_INTERVAL);
 
 let allRows = [];
@@ -137,7 +137,13 @@ function loadData(){
       try{
         if(!result||result.success!==true)throw new Error(result?.error||"Respons API tidak berhasil.");
         if(!Array.isArray(result.data))throw new Error("Respons API tidak memiliki array data.");
-        console.log("Google Sheets headers:",result.headers,"total:",result.total);
+       console.log("Headers API:", result.headers);
+console.log("Total API:", result.total);
+console.log(
+  "Baris yang diterima:",
+  result.data.length
+);
+console.log("Contoh baris aktual:", result.data[0]);
         allRows=dedupe(result.data.map(normalizeRow).filter(r=>r._sqdt));
         if(result.data.length&&allRows.length===0)throw new Error("Data terbaca tetapi kolom SQDT tidak ditemukan. Cocokkan nama header.");
         populateRCA();setDefaultDates();applyFilters();
