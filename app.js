@@ -2,7 +2,7 @@
  * Source schema: Code.gs response {success, headers, data, total, updatedAt}
  * MTTD source: MTTD 1 (terhadap Initial Posting)
  */
-const GOOGLE_SHEETS_API_URL = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
+const GOOGLE_SHEETS_API_URL = "Phttps://script.google.com/macros/s/AKfycbz34GvjpKG4PO78KsEvK8kcgZGADEBYJMSRcarKWSGpdik0rvjbfp5Yn1eTfKeMok0A/exec";
 const PAGE_SIZE = 10;
 const COLORS = {cyan:"#15d9ff",blue:"#178fff",green:"#00e6ad",red:"#ff537b",orange:"#ffb340",purple:"#b58aff"};
 
@@ -23,15 +23,48 @@ const charts = {};
 const $ = id => document.getElementById(id);
 
 const aliases = {
-  sqdt:["SQDT","SQDT NUMBER","SQDT ID","NUMBER OF SQDT","TICKET","INCIDENT ID"],
-  date:["DATE/TIME","DATE TIME","DATE","SQDT DATE","TANGGAL","INITIAL POSTING","TIME OPEN","OPEN DATE"],
-  severity:["SEVERITY","SQDT SEVERITY"],
-  status:["STATUS","STATUS SQDT"],
-  rca:["RCA","ROOT CAUSE","ROOT CAUSE ANALYSIS","RCA COMPLETE","RCA COMPLATE"],
-  mttr:["MTTR","MTTR (JAM)"],
-  mttd:["MTTD 1 (TERHADAP INITIAL POSTING)","MTTD 1","MTTD 1 (TERHADAP INITIAL POSTING) (JAM)","MTTD"],
-  traffic:["TRAFFIC LOSS (TB) TOTAL","TRAFFIC LOSS (TB)","TRAFFIC LOSS","TRAFFIC LOSS TOTAL"],
-  ceso:["ACHIEVEMENT CESO","ACHIEVEMENT CESO (%)","CESO"]
+  sqdt: [
+    "SQDT",
+    "SQDT NUMBER",
+    "SQDT ID",
+    "NUMBER OF SQDT",
+    "TICKET",
+    "INCIDENT ID",
+    "SERVICE INCIDENT CASE"
+  ],
+  date: [
+    "DATE/TIME",
+    "DATE TIME",
+    "DATE",
+    "SQDT DATE",
+    "TANGGAL",
+    "INITIAL POSTING",
+    "TIME OPEN",
+    "OPEN DATE"
+  ],
+  severity: ["SEVERITY", "SQDT SEVERITY"],
+  status: ["STATUS", "STATUS SQDT"],
+  rca: [
+    "RCA",
+    "ROOT CAUSE",
+    "ROOT CAUSE ANALYSIS",
+    "RCA COMPLETE",
+    "RCA COMPLATE"
+  ],
+  mttr: ["MTTR", "MTTR (JAM)"],
+  mttd: [
+    "MTTD 1 (TERHADAP INITIAL POSTING)",
+    "MTTD 1",
+    "MTTD 1 (TERHADAP INITIAL POSTING) (JAM)",
+    "MTTD"
+  ],
+  traffic: [
+    "TRAFFIC LOSS (TB) TOTAL",
+    "TRAFFIC LOSS (TB)",
+    "TRAFFIC LOSS",
+    "TRAFFIC LOSS TOTAL"
+  ],
+  ceso: ["ACHIEVEMENT CESO", "ACHIEVEMENT CESO (%)", "CESO"]
 };
 
 function normKey(v){return String(v??"").trim().toUpperCase().replace(/[_-]+/g," ").replace(/\s+/g," ");}
