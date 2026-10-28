@@ -126,38 +126,192 @@ function loadData(){
   }
   const btn=$("refreshBtn");if(btn){btn.disabled=true;btn.textContent="Loading…";}
   $("connectionStatus").textContent="Connecting…";
-  return new Promise((resolve,reject)=>{
-    const callback="sqmCallback_"+Date.now()+"_"+Math.floor(Math.random()*10000);
-    const script=document.createElement("script");let finished=false;
-    const timeout=setTimeout(()=>finish(new Error("Timeout. Periksa deployment Apps Script dan izin akses.")),30000);
-    function finish(error,result){
-      if(finished)return;finished=true;clearTimeout(timeout);delete window[callback];script.remove();
-      if(btn){btn.disabled=false;btn.textContent="↻ Refresh data";}
-      if(error){console.error("Google Sheets:",error);$("connectionStatus").textContent="Connection error";toast("Gagal membaca data: "+error.message);reject(error);return;}
-      try{
-        if(!result||result.success!==true)throw new Error(result?.error||"Respons API tidak berhasil.");
-        if(!Array.isArray(result.data))throw new Error("Respons API tidak memiliki array data.");
-       console.log("Headers API:", result.headers);
-console.log("Total API:", result.total);
-console.log(
-  "Baris yang diterima:",
-  result.data.length
-);
-console.log("Contoh baris aktual:", result.data[0]);
-        allRows=dedupe(result.data.map(normalizeRow).filter(r=>r._sqdt));
-        if(result.data.length&&allRows.length===0)throw new Error("Data terbaca tetapi kolom SQDT tidak ditemukan. Cocokkan nama header.");
-        populateRCA();setDefaultDates();applyFilters();
-        $("connectionStatus").textContent="Connected · "+allRows.length+" records";
-        $("lastUpdated").textContent="Last update: "+(result.updatedAt?new Date(result.updatedAt).toLocaleString("id-ID"):new Date().toLocaleString("id-ID"));
-        toast(allRows.length.toLocaleString("id-ID")+" SQDT berhasil dimuat.");resolve(result);
-      }catch(e){$("connectionStatus").textContent="Data error";toast(e.message);reject(e);}
+ 
+
+return new Promise((resolve, reject) => {
+  const PAGE_SIZE = 1000;
+  let allData = [];
+  let firstResult = null;
+
+  async function requestPage(offset) {
+    return new Promise((res, rej) => {
+      const callback =
+        "sqmCallback_" + Date.now() + "_" +
+        Math.floor(Math.random() * 10000);
+
+      const script = document.createElement("script");
+      let finished = false;
+
+      function cleanup() {
+        if (finished) return;
+        finished = true;
+        clearTimeout(timeout);
+        delete window[callback];
+        script.remove();
+      }
+
+      const timeout = setTimeout(() => {
+        cleanup();
+        rej(new Error(
+          "Timeout saat mengambil offset " + offset +
+          ". Periksa Executions Apps Script."
+        ));
+      }, 60000);
+
+      window[callback] = result => {
+        cleanup();
+
+        if (!result || result.success !== true) {
+          rej(new Error(result?.error || "Respons API tidak berhasil."));
+          return;
+        }
+
+        if (!Array.isArray(result.data)) {
+          rej(new Error("Respons API tidak memiliki array data."));
+          return;
+        }
+
+        res(result);
+      };
+
+      script.onerror = () => {
+        cleanup();
+        rej(new Error("Gagal memuat halaman API pada offset " + offset));
+      };
+
+      const sep = GOOGLE_SHEETS_API_URL.includes("?") ? "&" : "?";
+
+      script.src = GOOGLE_SHEETS_API_URL + sep +
+        "callback=" + encodeURIComponent(callback) +
+        "&offset=" + offset +
+        "&limit=" + PAGE_SIZE +
+        "&_=" + Date.now();
+
+      document.head.appendChild(script);
+    });
+  }
+
+  (async () => {
+    try {
+      firstResult = await requestPage(0);
+      allData.push(...firstResult.data);
+
+      const total = Number(firstResult.total) || 0;
+
+      for (
+        let offset = PAGE_SIZE;
+        offset < total;
+        offset += PAGE_SIZE
+      ) {
+        const page = await requestPage(offset);
+        allData.push(...page.data);
+      }
+
+      const result = {
+        ...firstResult,
+        data: allData
+      };
+
+      console.log("Headers API:", result.headers);
+      console.log("Total baris sumber:", result.total);
+      console.log("Baris yang diterima:", result.data.length);
+      console.log("Contoh baris aktual:", result.data[0]);
+
+      allRows = dedupe(
+        result.data.map(normalizeRow).filter(r => r._sqdt)
+      );
+
+      if (result.data.length && allRows.length === 0) {
+        throw new Error(
+          "Data diterima, tetapi kolom SQDT tidak cocok dengan aliases.sqdt."
+        );
+      }
+
+      populateRCA();
+      setDefaultDates();
+      applyFilters();
+
+      $("connectionStatus").textContent =
+        "Connected · " + allRows.length + " records";
+
+      $("lastUpdated").textContent =
+        "Last update: " +
+        new Date(result.updatedAt).toLocaleString("id-ID");
+
+      toast(allRows.length.toLocaleString("id-ID") +
+        " SQDT berhasil dimuat.");
+
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = "↻ Refresh data";
+      }
+
+      resolve(result);
+    } catch (error) {
+      console.error("Google Sheets:", error);
+      $("connectionStatus").textContent = "Connection error";
+      toast("Gagal membaca data: " + error.message);
+
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = "↻ Refresh data";
+      }
+
+      reject(error);
     }
-    window[callback]=result=>finish(null,result);
-    script.onerror=()=>finish(new Error("Web App gagal diakses. Periksa URL /exec dan akses deployment."));
-    const sep=GOOGLE_SHEETS_API_URL.includes("?")?"&":"?";
-    script.src=GOOGLE_SHEETS_API_URL+sep+"callback="+encodeURIComponent(callback)+"&_="+Date.now();
-    document.head.appendChild(script);
-  });
+  })();
+});
+
+      populateRCA();
+      setDefaultDates();
+      applyFilters();
+
+      $("connectionStatus").textContent =
+        "Connected · " + allRows.length + " records";
+
+      $("lastUpdated").textContent =
+        "Last update: " +
+        (result.updatedAt
+          ? new Date(result.updatedAt).toLocaleString("id-ID")
+          : new Date().toLocaleString("id-ID"));
+
+      toast(allRows.length.toLocaleString("id-ID") + " SQDT berhasil dimuat.");
+      resolve(result);
+
+    } catch (e) {
+      $("connectionStatus").textContent = "Data error";
+      toast(e.message);
+      reject(e);
+    }
+  }
+
+  // Daftarkan callback sebelum request dimulai.
+  window[callback] = result => finish(null, result);
+
+  script.onerror = () => {
+    finish(new Error(
+      "Script API gagal dimuat. Periksa URL /exec dan izin deployment."
+    ));
+  };
+
+  // Beri waktu hingga 60 detik untuk diagnosis.
+  const timeout = setTimeout(() => {
+    finish(new Error(
+      "Timeout 60 detik. Periksa respons dan log eksekusi Apps Script."
+    ));
+  }, 60000);
+
+  const sep = GOOGLE_SHEETS_API_URL.includes("?") ? "&" : "?";
+
+  script.src =
+    GOOGLE_SHEETS_API_URL +
+    sep +
+    "callback=" + encodeURIComponent(callback) +
+    "&_=" + Date.now();
+
+  document.head.appendChild(script);
+});
+
 }
 
 function dateInput(d){return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");}
