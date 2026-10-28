@@ -277,12 +277,6 @@ return new Promise((resolve, reject) => {
 
       toast(allRows.length.toLocaleString("id-ID") + " SQDT berhasil dimuat.");
       resolve(result);
-
-    } catch (e) {
-      $("connectionStatus").textContent = "Data error";
-      toast(e.message);
-      reject(e);
-    }
   }
 
   // Daftarkan callback sebelum request dimulai.
