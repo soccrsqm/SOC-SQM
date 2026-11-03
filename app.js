@@ -542,7 +542,6 @@ function dateInput(d) {
 }
 
 function setDefaultDates() {
-
   const dates = allRows
     .map(r => r._date)
     .filter(Boolean)
@@ -550,27 +549,33 @@ function setDefaultDates() {
 
   if (!dates.length) return;
 
-  const end = dates[dates.length - 1];
+  // Ambil tanggal paling awal dan paling akhir
+  const earliest = dates[0];
+  const latest = dates[dates.length - 1];
 
-  const start = new Date(end);
-  start.setDate(start.getDate() - 29);
+  // Tampilkan seluruh periode data
+  if ($("dateStart") && !$("dateStart").value) {
+    $("dateStart").value = dateInput(earliest);
+  }
 
-  const compareEnd = new Date(start);
+  if ($("dateEnd")) {
+    $("dateEnd").value = dateInput(latest);
+  }
+
+  // Periode pembanding tetap tersedia
+  const compareEnd = new Date(earliest);
   compareEnd.setDate(compareEnd.getDate() - 1);
 
   const compareStart = new Date(compareEnd);
   compareStart.setDate(compareStart.getDate() - 29);
 
-  [
-    ["dateStart", start],
-    ["dateEnd", end],
-    ["compareStart", compareStart],
-    ["compareEnd", compareEnd]
-  ].forEach(([id, d]) => {
-    if ($(id) && !$(id).value) {
-      $(id).value = dateInput(d);
-    }
-  });
+  if ($("compareStart") && !$("compareStart").value) {
+    $("compareStart").value = dateInput(compareStart);
+  }
+
+  if ($("compareEnd") && !$("compareEnd").value) {
+    $("compareEnd").value = dateInput(compareEnd);
+  }
 }
 
 function populateRCA() {
