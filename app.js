@@ -459,12 +459,8 @@ function loadData() {
       console.log("Baris diterima:", result.data.length);
       console.log("Contoh baris:", result.data[0] || null);
 
-      allRows = dedupe(
-        result.data
-          .map(normalizeRow)
-          .filter(row => row._sqdt)
-      );
-
+      allRows = result.data.map(normalizeRow);
+      
       if (
         result.data.length > 0 &&
         allRows.length === 0
