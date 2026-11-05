@@ -1280,7 +1280,7 @@ function renderComparison(rows){
 function renderTable(rows){
   $("tableCount").textContent=`Menampilkan ${int(rows.length)} data`;
 
-  $("tableBody").innerHTML=rows.slice(0,1000).map((r,i)=>{
+  $("tableBody").innerHTML=rows.map((r,i)=>{
     const severity=String(get(r,"severity")||"").toUpperCase();
     return `<tr>
       <td>${i+1}</td>
