@@ -695,35 +695,60 @@ async function loadData(){
  setMessage("Mengambil data Google Sheets...");
  $("refreshBtn").disabled=true;
  try{
-  const response=await fetch(API_URL+"&_="+Date.now(),{cache:"no-store"});
-  if(!response.ok)throw new Error("HTTP "+response.status);
-  const json=await response.json();
-  if(json.success===false)throw new Error(json.error||"API mengembalikan error");
+  
+const API_URL = "https://script.google.com/macros/s/AKfycbzpXQWO54ZtPMxOe_Ibn0nbMoGctY6ppMMr5smukWzTXnoaPnbV7emn9I62k2hfsVqP/exec";
 
-  let rows=Array.isArray(json.data)?json.data:[];
-  if(!rows.length&&Array.isArray(json.values)&&json.values.length>1){
-   const headers=json.values[0];
-   rows=json.values.slice(1).map(row=>Object.fromEntries(headers.map((h,i)=>[h,row[i]??""])));
-  }
-  if(!rows.length)throw new Error("Data kosong. Periksa tab rawdata dan Apps Script.");
+function loadData() {
+  return new Promise((resolve, reject) => {
 
-  allData=rows;
-  fillSelect("fSeverity",unique(allData.map(severity)));
-  fillSelect("fRegion",unique(allData.map(region)));
-  fillSelect("fStatus",unique(allData.map(r=>String(first(r,["Status"])).toUpperCase())));
-  fillSelect("fCircle",unique(allData.map(r=>String(first(r,["Circle"])).trim())));
-  fillSelect("fRca",unique(allData.map(rca)));
+    const callbackName =
+      "sqdtCallback_" + Date.now();
 
-  applyFilters();
-  $("lastUpdate").textContent="Last updated: "+new Date().toLocaleString("id-ID");
-  setMessage(fmt(allData.length)+" baris berhasil dimuat");
- }catch(err){
-  console.error(err);
-  setMessage("Gagal: "+err.message,true);
-  $("tickerText").textContent="PERHATIAN: Koneksi data Google Sheets bermasalah. Periksa URL Apps Script dan akses Web App.";
- }finally{
-  $("refreshBtn").disabled=false;
- }
+    const script = document.createElement("script");
+
+    const timeout = setTimeout(() => {
+      cleanup();
+      reject(new Error("Waktu tunggu API habis."));
+    }, 60000);
+
+    function cleanup() {
+      clearTimeout(timeout);
+      delete window[callbackName];
+
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+    }
+
+    window[callbackName] = function(response) {
+      cleanup();
+
+      if (!response || response.success !== true) {
+        reject(
+          new Error(
+            response?.error || "API gagal membaca data."
+          )
+        );
+        return;
+      }
+
+      resolve(response);
+    };
+
+    script.onerror = function() {
+      cleanup();
+      reject(new Error("Gagal menghubungi Google Apps Script."));
+    };
+
+    script.src =
+      API_URL +
+      (API_URL.includes("?") ? "&" : "?") +
+      "callback=" + callbackName +
+      "&_=" + Date.now();
+
+    document.head.appendChild(script);
+
+  });
 }
 
 // =====================================================
