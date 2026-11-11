@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#06152b">
+  <title>SQDT Problem Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">S</div>
+      <div><strong>SQDT</strong><span>Problem Management</span></div>
+    </div>
+    <nav class="nav">
+      <a class="active" href="#overview">⌂ <span>Dashboard</span></a>
+      <a href="#trend">◫ <span>Trend Analysis</span></a>
+      <a href="#severity">◈ <span>Severity</span></a>
+      <a href="#rca">◇ <span>RCA Analysis</span></a>
+      <a href="#sla">◉ <span>SLA Monitoring</span></a>
+      <a href="#performance">◷ <span>MTTR &amp; MTTD</span></a>
+      <a href="#traffic">⌁ <span>Traffic Loss</span></a>
+      <a href="#region">◎ <span>Regional Analysis</span></a>
+      <a href="#detail">▤ <span>Detail Insiden</span></a>
+    </nav>
+    <div class="filter-panel">
+      <div class="filter-title">⌕ Filter Panel</div>
+      <label>SQDT Search<input id="searchInput" placeholder="Cari SQDT..."></label>
+      <label>Severity<select id="severityFilter"><option value="">Semua Severity</option></select></label>
+      <label>Status<select id="statusFilter"><option value="">Semua Status</option></select></label>
+      <label>Region<select id="regionFilter"><option value="">Semua Region</option></select></label>
+      <label>Circle<select id="circleFilter"><option value="">Semua Circle</option></select></label>
+      <label>RCA<select id="rcaFilter"><option value="">Semua RCA</option></select></label>
+    </div>
+    <div class="sidebar-foot">SQDT Dashboard<br><span>Dark Monitoring · v2.0</span></div>
+  </aside>
+
+  <main class="main" id="overview">
+    <header class="topbar">
+      <div><h1>SQDT Problem Management</h1><p>Monitoring &amp; Analytics Dashboard · Incident · RCA · SLA · Performance</p></div>
+      <div class="top-meta"><span class="live-dot"></span><span>Live Data</span><span id="lastUpdated">Last updated: --</span><span>Auto refresh: 15 min</span><button class="icon-btn" id="themeBtn" title="Ganti tema">◐</button></div>
+    </header>
+
+    <section class="ticker"><b>◆ INFO</b><span id="tickerText">Monitoring SQDT Problem Management — Keep Our Service Reliable and Excellent!</span><span class="ticker-end">›</span></section>
+
+    <section class="toolbar">
+      <div class="date-group"><label>Periode Utama<input type="date" id="dateFrom"></label><label>&nbsp;<input type="date" id="dateTo"></label></div>
+      <div class="date-group compare"><label>Periode Pembanding<input type="date" id="compareFrom"></label><label>&nbsp;<input type="date" id="compareTo"></label></div>
+      <div class="toolbar-actions"><button class="primary" id="applyBtn">▽ Apply Filter</button><button id="refreshBtn">⟳ Refresh Data</button><button id="downloadBtn">⇩ Download CSV</button></div>
+      <div id="statusMessage" class="status-message">Menyiapkan koneksi data...</div>
+    </section>
+
+    <section class="kpi-grid">
+      <article class="kpi blue"><div class="kpi-icon">▣</div><div class="kpi-label">Number of SQDT</div><div class="kpi-value" id="kpiTotal">--</div><div class="kpi-sub" id="kpiTotalSub">Total insiden</div><div class="spark">⌁</div></article>
+      <article class="kpi green"><div class="kpi-icon">◷</div><div class="kpi-label">Open Incidents</div><div class="kpi-value" id="kpiOpen">--</div><div class="kpi-sub" id="kpiOpenSub">Sedang ditangani</div><div class="spark">⌁</div></article>
+      <article class="kpi purple"><div class="kpi-icon">✓</div><div class="kpi-label">Closed Incidents</div><div class="kpi-value" id="kpiClosed">--</div><div class="kpi-sub" id="kpiClosedSub">Selesai</div><div class="spark">⌁</div></article>
+      <article class="kpi cyan"><div class="kpi-icon">⬡</div><div class="kpi-label">SLA Compliance</div><div class="kpi-value" id="kpiSla">--</div><div class="kpi-sub" id="kpiSlaSub">Within SLA</div><div class="spark">⌁</div></article>
+      <article class="kpi orange"><div class="kpi-icon">◴</div><div class="kpi-label">Average MTTR</div><div class="kpi-value" id="kpiMttr">--</div><div class="kpi-sub">Waktu penyelesaian</div><div class="spark">⌁</div></article>
+      <article class="kpi teal"><div class="kpi-icon">◉</div><div class="kpi-label">Average MTTD</div><div class="kpi-value" id="kpiMttd">--</div><div class="kpi-sub">Waktu deteksi</div><div class="spark">⌁</div></article>
+      <article class="kpi red"><div class="kpi-icon">▤</div><div class="kpi-label">Total Traffic Loss</div><div class="kpi-value" id="kpiTraffic">--</div><div class="kpi-sub">Total kehilangan trafik</div><div class="spark">⌁</div></article>
+      <article class="kpi violet"><div class="kpi-icon">♜</div><div class="kpi-label">Achievement CESO</div><div class="kpi-value" id="kpiCeso">--</div><div class="kpi-sub">Rata-rata pencapaian</div><div class="spark">⌁</div></article>
+    </section>
+
+    <section class="charts-grid">
+      <article class="panel span-5" id="severity"><div class="panel-head"><h2>01. Severity Distribution</h2><span class="panel-total" id="severityTotal">Total: --</span></div><div class="chart-wrap"><canvas id="severityChart"></canvas></div><div class="legend-values" id="severityLegend"></div></article>
+      <article class="panel span-7" id="trend"><div class="panel-head"><h2>02. Status &amp; Incident Trend</h2><span class="panel-total" id="statusTotal">Total: --</span></div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></article>
+      <article class="panel span-5" id="rca"><div class="panel-head"><h2>03. RCA Analysis</h2><span class="panel-total" id="rcaTotal">Total: --</span></div><div class="chart-wrap"><canvas id="rcaChart"></canvas></div></article>
+      <article class="panel span-4" id="performance"><div class="panel-head"><h2>04. MTTR &amp; MTTD</h2><span class="panel-total">Rata-rata jam</span></div><div class="chart-wrap"><canvas id="timeChart"></canvas></div></article>
+      <article class="panel span-3" id="traffic"><div class="panel-head"><h2>05. Traffic Loss</h2><span class="panel-total" id="trafficTotal">-- TB</span></div><div class="chart-wrap"><canvas id="trafficChart"></canvas></div></article>
+      <article class="panel span-4" id="sla"><div class="panel-head"><h2>06. SLA &amp; Achievement CESO</h2></div><div class="achievement"><div class="donut-score"><strong id="cesoScore">--</strong><span>CESO</span></div><div class="achievement-info"><strong id="slaScore">--</strong><span>SLA Compliance</span><div class="progress"><i id="cesoProgress"></i></div><small>Target CESO ≥ 90%</small></div></div><div class="chart-wrap short"><canvas id="cesoChart"></canvas></div></article>
+      <article class="panel span-5" id="region"><div class="panel-head"><h2>07. Regional Performance</h2><span class="panel-total" id="regionTotal">Total: --</span></div><div class="chart-wrap"><canvas id="regionChart"></canvas></div><div class="rank-list" id="regionRanks"></div></article>
+      <article class="panel span-3"><div class="panel-head"><h2>08. Period Comparison</h2></div><div class="chart-wrap"><canvas id="compareChart"></canvas></div><div class="compare-stats" id="compareStats"></div></article>
+      <article class="panel span-12" id="detail"><div class="panel-head"><h2>09. Detail Insiden</h2><span class="panel-total" id="tableCount">0 data</span></div><div class="table-scroll"><table><thead><tr><th>SQDT</th><th>Severity</th><th>Status</th><th>Branch / Node</th><th>Kabupaten</th><th>Region</th><th>Circle</th><th>RCA</th><th>MTTR</th><th>MTTD</th><th>Traffic Loss (TB)</th><th>Achievement CESO</th></tr></thead><tbody id="incidentRows"><tr><td colspan="12" class="empty">Menunggu data...</td></tr></tbody></table></div></article>
+    </section>
+    <footer> SQDT Problem Management · Google Sheets API · Dashboard refresh otomatis setiap 15 menit</footer>
+  </main>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
