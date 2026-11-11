@@ -688,30 +688,30 @@ function renderDashboard(){
  </tr>`).join("")||'<tr><td colspan="12" style="text-align:center">Tidak ada data</td></tr>';
 }
 
+/
 // =====================================================
-// LOAD GOOGLE SHEETS
+// LOAD GOOGLE SHEETS - JSONP
 // =====================================================
-async function loadData(){
- setMessage("Mengambil data Google Sheets...");
- $("refreshBtn").disabled=true;
- try{
-  
-const API_URL = "https://script.google.com/macros/s/AKfycbzpXQWO54ZtPMxOe_Ibn0nbMoGctY6ppMMr5smukWzTXnoaPnbV7emn9I62k2hfsVqP/exec";
 
-function loadData() {
+function requestJsonp(url) {
   return new Promise((resolve, reject) => {
 
     const callbackName =
-      "sqdtCallback_" + Date.now();
+      "sqdtCallback_" + Date.now() + "_" +
+      Math.floor(Math.random() * 10000);
 
     const script = document.createElement("script");
+    let finished = false;
 
     const timeout = setTimeout(() => {
-      cleanup();
-      reject(new Error("Waktu tunggu API habis."));
+      finish();
+      reject(new Error("Waktu tunggu Google Apps Script habis."));
     }, 60000);
 
-    function cleanup() {
+    function finish() {
+      if (finished) return;
+      finished = true;
+
       clearTimeout(timeout);
       delete window[callbackName];
 
@@ -721,14 +721,12 @@ function loadData() {
     }
 
     window[callbackName] = function(response) {
-      cleanup();
+      finish();
 
       if (!response || response.success !== true) {
-        reject(
-          new Error(
-            response?.error || "API gagal membaca data."
-          )
-        );
+        reject(new Error(
+          response?.error || "API gagal membaca data."
+        ));
         return;
       }
 
@@ -736,19 +734,103 @@ function loadData() {
     };
 
     script.onerror = function() {
-      cleanup();
-      reject(new Error("Gagal menghubungi Google Apps Script."));
+      finish();
+      reject(new Error(
+        "Tidak dapat menghubungi Google Apps Script."
+      ));
     };
 
+    const separator = url.includes("?") ? "&" : "?";
+
     script.src =
-      API_URL +
-      (API_URL.includes("?") ? "&" : "?") +
-      "callback=" + callbackName +
+      url +
+      separator +
+      "callback=" + encodeURIComponent(callbackName) +
       "&_=" + Date.now();
 
     document.head.appendChild(script);
-
   });
+}
+
+
+async function loadData() {
+
+  setMessage("Mengambil data Google Sheets...");
+  $("refreshBtn").disabled = true;
+
+  try {
+
+    // Memanggil API menggunakan JSONP
+    const response = await requestJsonp(API_URL);
+
+    if (!Array.isArray(response.data)) {
+      throw new Error("Format data API tidak valid.");
+    }
+
+    // Menyimpan seluruh data dari API
+    allData = response.data;
+
+    // Mengisi pilihan filter
+    fillSelect(
+      "fSeverity",
+      unique(allData.map(r => severity(r)))
+    );
+
+    fillSelect(
+      "fRegion",
+      unique(allData.map(r => region(r)))
+    );
+
+    fillSelect(
+      "fStatus",
+      unique(allData.map(r =>
+        String(first(r, ["Status"])).toUpperCase()
+      ))
+    );
+
+    fillSelect(
+      "fCircle",
+      unique(allData.map(r =>
+        String(first(r, ["CIRCLE", "Circle"])).trim()
+      ))
+    );
+
+    fillSelect(
+      "fRca",
+      unique(allData.map(r => rca(r)))
+    );
+
+    // Waktu pembaruan
+    $("lastUpdate").textContent =
+      "Last updated: " +
+      new Date(response.updatedAt || Date.now())
+        .toLocaleString("id-ID");
+
+    // Terapkan filter dan gambar ulang dashboard
+    applyFilters();
+
+    setMessage(
+      "Berhasil membaca " +
+      fmt(response.total ?? allData.length) +
+      " data dari Google Sheets."
+    );
+
+    console.log("SQDT API SUCCESS");
+    console.log("Total data:", allData.length);
+    console.log("Headers:", response.headers);
+
+  } catch (error) {
+
+    console.error("SQDT LOAD ERROR:", error);
+
+    setMessage(
+      "Gagal memuat data: " + error.message,
+      true
+    );
+
+  } finally {
+    $("refreshBtn").disabled = false;
+  }
 }
 
 // =====================================================
