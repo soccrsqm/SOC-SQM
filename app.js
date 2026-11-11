@@ -1,7 +1,7 @@
 /* SQDT Problem Management Dashboard
    Data source: Google Apps Script Web App -> Google Sheets tab "rawdata"
    Auto refresh: 15 minutes. Change API_URL below if your deployment URL changes. */
-const API_URL = "https://script.google.com/macros/s/AKfycbxN1obfqjAXsTF7aq9tZQ1nrLGL64xNwx5PDrCG8FxWqmcZm__XKO4sMHP9du4_es8Z3Q/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzpXQWO54ZtPMxOe_Ibn0nbMoGctY6ppMMr5smukWzTXnoaPnbV7emn9I62k2hfsVqP/exec";
 const REFRESH_MS = 15 * 60 * 1000;
 let allRows = [], filteredRows = [], charts = {};
 const $ = id => document.getElementById(id);
