@@ -1,86 +1,765 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#06152b">
-  <title>SQDT Problem Management</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SQDT Problem Management</title>
+<meta name="theme-color" content="#04152f">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+
+<style>
+:root {
+ --bg:#03142d;
+ --panel:#071d3a;
+ --panel2:#0b2548;
+ --border:#075b94;
+ --text:#f3f8ff;
+ --muted:#9bb9dc;
+ --cyan:#08d8ff;
+ --blue:#078cff;
+ --green:#00d68a;
+ --purple:#963cff;
+ --orange:#ff941e;
+}
+*{box-sizing:border-box}
+body{
+ margin:0;background:radial-gradient(ellipse at top,#103d70 0%,#04152f 55%,#020e20 100%);
+ color:var(--text);font-family:Inter,Arial,sans-serif;font-size:12px
+}
+.app{display:flex;min-height:100vh}
+.sidebar{
+ width:210px;flex-shrink:0;position:fixed;top:0;bottom:0;left:0;
+ background:linear-gradient(180deg,#061d3b,#031127);
+ border-right:1px solid #0877b7;display:flex;flex-direction:column;
+ overflow-y:auto;z-index:10;box-shadow:5px 0 25px #00102788
+}
+.brand{height:75px;border-bottom:1px solid #075080;display:flex;align-items:center;padding:12px 18px;gap:12px}
+.logo{font-size:37px;font-weight:800;color:#04caff;text-shadow:0 0 20px #008fff}
+.brand strong{font-size:19px;display:block}
+.brand small{font-size:10px;color:#a6d4f6}
+.nav{padding:10px}
+.nav a{
+ display:flex;align-items:center;gap:12px;padding:11px 12px;
+ margin:3px 0;border-radius:8px;text-decoration:none;color:#c7dff8;
+ font-size:11px;font-weight:600
+}
+.nav a:hover,.nav a.active{
+ background:linear-gradient(100deg,#078bff,#0747bb);
+ color:white;box-shadow:0 0 17px #087dff88
+}
+.nav i{font-size:17px;font-style:normal;width:18px;text-align:center;color:#50d8ff}
+.filter{
+ border-top:1px solid #075080;padding:13px 14px;margin-top:3px
+}
+.filter h3{color:var(--cyan);font-size:12px;margin:0 0 12px}
+.filter label{display:block;font-size:10px;color:#b5d1ec;margin:9px 0}
+.filter input,.filter select{
+ width:100%;margin-top:5px;padding:9px;background:#061b37;
+ border:1px solid #176193;border-radius:7px;color:white;font:inherit
+}
+.sidebar-foot{margin-top:auto;border-top:1px solid #075080;padding:15px;color:#b8d5f2}
+.sidebar-foot strong{display:block}
+.sidebar-foot small{color:var(--cyan)}
+main{margin-left:210px;width:calc(100% - 210px);padding:0 18px 18px;min-width:0}
+header{
+ height:75px;display:flex;justify-content:space-between;align-items:center;
+ border-bottom:1px solid #14517e
+}
+header h1{font-size:23px;margin:0;font-weight:800}
+header p{color:#a4c7e8;margin:4px 0;font-size:12px}
+.header-right{display:flex;align-items:center;gap:14px;color:#d1e6f9;font-size:10px}
+.live{width:8px;height:8px;border-radius:50%;background:#00e5a0;display:inline-block;box-shadow:0 0 10px #00e5a0}
+button{cursor:pointer}
+.ticker{
+ margin:10px 0 12px;height:42px;display:flex;align-items:center;
+ overflow:hidden;gap:12px;padding:0 13px;
+ border:1px solid #0783c7;border-radius:9px;
+ background:linear-gradient(90deg,#082b54,#0b3a6d,#092449);
+ box-shadow:0 0 15px #007aff44
+}
+.ticker-icon{font-size:22px;color:#00dfff;flex-shrink:0}
+.ticker-label{color:#00e2ff;font-weight:800;white-space:nowrap}
+.marquee{overflow:hidden;flex:1;white-space:nowrap}
+.marquee span{display:inline-block;padding-left:100%;animation:marquee 24s linear infinite;font-size:12px;font-weight:600}
+@keyframes marquee{to{transform:translateX(-100%)}}
+.toolbar{
+ display:flex;align-items:end;flex-wrap:wrap;gap:9px;
+ padding:11px;background:#071c36;border:1px solid #15517d;
+ border-radius:9px;margin-bottom:12px
+}
+.toolbar label{font-size:10px;color:#9fc4e8;display:grid;gap:5px}
+.toolbar input{background:#06162e;border:1px solid #20577e;color:white;padding:8px;border-radius:5px}
+.toolbar button{padding:9px 13px;border-radius:6px;border:1px solid #2676b2;background:#10365d;color:white;font-weight:700;font-size:10px}
+.toolbar button.primary{background:#087eff;border-color:#12aaff}
+#message{margin-left:auto;color:#00e5a0;font-size:10px}
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:11px;margin-bottom:12px}
+.kpi{
+ height:108px;position:relative;overflow:hidden;padding:14px 12px 12px 85px;
+ border:1px solid;border-radius:11px;background:linear-gradient(120deg,#092b52,#071a36);
+ box-shadow:0 5px 18px #0005
+}
+.kpi:after{content:"";position:absolute;right:-20px;bottom:-35px;width:100px;height:80px;background:currentColor;filter:blur(40px);opacity:.23}
+.kpi .ico{
+ position:absolute;left:13px;top:15px;width:54px;height:54px;border-radius:13px;
+ display:grid;place-items:center;font-size:27px;color:white;
+ background:linear-gradient(145deg,currentColor,#063b75);
+ box-shadow:0 0 20px currentColor
+}
+.kpi .name{font-size:12px;color:#d1e6fa;font-weight:600}
+.kpi .value{font-size:27px;font-weight:800;margin:8px 0 3px;white-space:nowrap}
+.kpi .sub{font-size:10px;color:#a9c8e5}
+.kpi.blue{color:#168fff;border-color:#126bc2}
+.kpi.green{color:#00db91;border-color:#008d68}
+.kpi.purple{color:#a34bff;border-color:#7435c6}
+.kpi.cyan{color:#00d8ed;border-color:#087d9b}
+.kpi.orange{color:#ff9829;border-color:#a45b17}
+.kpi .value{color:white}
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:11px}
+.panel{
+ background:linear-gradient(145deg,#092344,#05172f);
+ border:1px solid #075a91;border-radius:10px;padding:12px;
+ min-width:0;box-shadow:0 5px 18px #0004
+}
+.panel h2{font-size:13px;margin:0;font-weight:800}
+.panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;gap:8px}
+.panel-head h2 span{color:#04d6ff}
+.panel-total{color:#60bfff;font-size:9px}
+.c6{grid-column:span 6}
+.c4{grid-column:span 4}
+.c5{grid-column:span 5}
+.c3{grid-column:span 3}
+.c12{grid-column:span 12}
+.chart{height:190px;position:relative}
+.chart.small{height:155px}
+.severity-layout{display:grid;grid-template-columns:1.5fr 1fr;gap:8px;align-items:center}
+.severity-layout .chart{height:180px}
+.donut-wrap{height:180px;position:relative}
+.donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+.donut-center strong{font-size:21px}
+.donut-center small{color:#a7c8e6}
+.legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.legend span{font-size:9px;color:#b7d0e9}
+.legend b{color:white}
+.achievement{display:flex;align-items:center;gap:18px;padding:10px}
+.score-ring{
+ width:90px;height:90px;flex-shrink:0;border-radius:50%;
+ display:grid;place-items:center;
+ background:conic-gradient(#00d9ff 0 96.4%,#193c60 96.4%)
+}
+.score-ring div{width:70px;height:70px;border-radius:50%;background:#071c35;display:grid;place-items:center;text-align:center;font-size:15px;font-weight:800}
+.score-info{flex:1}
+.score-info strong{font-size:28px}
+.score-info p{margin:4px 0;color:#a9c7e4}
+.progress{height:12px;background:#1b3a5e;border-radius:20px;margin-top:10px;overflow:hidden}
+.progress div{height:100%;width:0;background:linear-gradient(90deg,#00a9ff,#00edc0);border-radius:20px}
+.rank{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.rank span{padding:5px 8px;background:#0b3156;border:1px solid #185780;border-radius:5px;font-size:9px;color:#c6e2fa}
+.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.summary div{padding:12px;background:#0a2b4c;border:1px solid #126094;border-radius:7px}
+.summary small{display:block;color:#a7c8e8}
+.summary strong{display:block;font-size:21px;margin-top:5px}
+.table-scroll{overflow:auto;max-height:420px}
+table{width:100%;border-collapse:collapse;white-space:nowrap;font-size:10px}
+th{position:sticky;top:0;background:#10375c;color:#b9e0ff;text-align:left;padding:10px}
+td{padding:9px;border-bottom:1px solid #183957;color:#d6e9f8}
+tr:hover td{background:#102f50}
+footer{text-align:center;color:#7295b9;font-size:9px;padding:18px}
+@media(max-width:1250px){
+ .sidebar{width:175px}main{margin-left:175px;width:calc(100% - 175px)}
+ .kpis{grid-template-columns:repeat(3,1fr)}
+ .c3,.c4,.c5,.c6{grid-column:span 6}
+}
+@media(max-width:760px){
+ .sidebar{position:relative;width:100%;height:auto;bottom:auto}
+ .brand{height:60px}.nav{display:flex;overflow:auto}
+ .nav a{white-space:nowrap}
+ .filter{display:grid;grid-template-columns:repeat(2,1fr)}
+ .filter h3{grid-column:1/-1}
+ .sidebar-foot{display:none}
+ main{margin:0;width:100%;padding:0 9px}
+ header{height:auto;padding:13px 0;align-items:flex-start;flex-direction:column;gap:8px}
+ header h1{font-size:18px}
+ .header-right{flex-wrap:wrap}
+ .kpis{grid-template-columns:repeat(2,1fr)}
+ .kpi{padding-left:65px;height:95px}
+ .kpi .ico{width:42px;height:42px;font-size:21px}
+ .kpi .value{font-size:20px}
+ .grid{display:block}
+ .panel{margin-bottom:10px}
+ .chart{height:210px}
+ .severity-layout{grid-template-columns:1fr 1fr}
+ .summary{grid-template-columns:repeat(2,1fr)}
+}
+</style>
 </head>
+
 <body>
-<div class="app-shell">
-  <aside class="sidebar">
-    <div class="brand">
-      <div class="brand-mark">S</div>
-      <div><strong>SQDT</strong><span>Problem Management</span></div>
-    </div>
-    <nav class="nav">
-      <a class="active" href="#overview">⌂ <span>Dashboard</span></a>
-      <a href="#trend">◫ <span>Trend Analysis</span></a>
-      <a href="#severity">◈ <span>Severity</span></a>
-      <a href="#rca">◇ <span>RCA Analysis</span></a>
-      <a href="#sla">◉ <span>SLA Monitoring</span></a>
-      <a href="#performance">◷ <span>MTTR &amp; MTTD</span></a>
-      <a href="#traffic">⌁ <span>Traffic Loss</span></a>
-      <a href="#region">◎ <span>Regional Analysis</span></a>
-      <a href="#detail">▤ <span>Detail Insiden</span></a>
-    </nav>
-    <div class="filter-panel">
-      <div class="filter-title">⌕ Filter Panel</div>
-      <label>SQDT Search<input id="searchInput" placeholder="Cari SQDT..."></label>
-      <label>Severity<select id="severityFilter"><option value="">Semua Severity</option></select></label>
-      <label>Status<select id="statusFilter"><option value="">Semua Status</option></select></label>
-      <label>Region<select id="regionFilter"><option value="">Semua Region</option></select></label>
-      <label>Circle<select id="circleFilter"><option value="">Semua Circle</option></select></label>
-      <label>RCA<select id="rcaFilter"><option value="">Semua RCA</option></select></label>
-    </div>
-    <div class="sidebar-foot">SQDT Dashboard<br><span>Dark Monitoring · v2.0</span></div>
-  </aside>
+<div class="app">
+<aside class="sidebar">
+ <div class="brand">
+  <div class="logo">ϟ</div>
+  <div><strong>SQDT</strong><small>Problem Management</small></div>
+ </div>
 
-  <main class="main" id="overview">
-    <header class="topbar">
-      <div><h1>SQDT Problem Management</h1><p>Monitoring &amp; Analytics Dashboard · Incident · RCA · SLA · Performance</p></div>
-      <div class="top-meta"><span class="live-dot"></span><span>Live Data</span><span id="lastUpdated">Last updated: --</span><span>Auto refresh: 15 min</span><button class="icon-btn" id="themeBtn" title="Ganti tema">◐</button></div>
-    </header>
+ <nav class="nav">
+  <a class="active" href="#dashboard"><i>⌂</i>Dashboard</a>
+  <a href="#trend"><i>▧</i>Trend Analysis</a>
+  <a href="#severity"><i>◈</i>Severity</a>
+  <a href="#rca"><i>♧</i>RCA Analysis</a>
+  <a href="#region"><i>◎</i>Region & Circle</a>
+  <a href="#performance"><i>◷</i>MTTR & MTTD</a>
+  <a href="#traffic"><i>⌁</i>Traffic Loss</a>
+  <a href="#achievement"><i>♜</i>Achievement</a>
+  <a href="#detail"><i>▤</i>Data Export</a>
+ </nav>
 
-    <section class="ticker"><b>◆ INFO</b><span id="tickerText">Monitoring SQDT Problem Management — Keep Our Service Reliable and Excellent!</span><span class="ticker-end">›</span></section>
+ <div class="filter">
+  <h3>◈ Filter Panel</h3>
+  <label>SQDT Search<input id="search" placeholder="Cari SQDT..."></label>
+  <label>Severity<select id="fSeverity"><option value="">All Severity</option></select></label>
+  <label>Region<select id="fRegion"><option value="">All Region</option></select></label>
+  <label>Status<select id="fStatus"><option value="">All Status</option></select></label>
+  <label>Circle<select id="fCircle"><option value="">All Circle</option></select></label>
+  <label>RCA<select id="fRca"><option value="">All RCA</option></select></label>
+ </div>
+ <div class="sidebar-foot"><strong>◈ SQDT Dashboard</strong><small>v1.0 | Dark Mode</small></div>
+</aside>
 
-    <section class="toolbar">
-      <div class="date-group"><label>Periode Utama<input type="date" id="dateFrom"></label><label>&nbsp;<input type="date" id="dateTo"></label></div>
-      <div class="date-group compare"><label>Periode Pembanding<input type="date" id="compareFrom"></label><label>&nbsp;<input type="date" id="compareTo"></label></div>
-      <div class="toolbar-actions"><button class="primary" id="applyBtn">▽ Apply Filter</button><button id="refreshBtn">⟳ Refresh Data</button><button id="downloadBtn">⇩ Download CSV</button></div>
-      <div id="statusMessage" class="status-message">Menyiapkan koneksi data...</div>
-    </section>
+<main id="dashboard">
+<header>
+ <div>
+  <h1>SQDT Problem Management</h1>
+  <p>Monitoring & Analytics Dashboard · Incident · RCA · SLA · Performance</p>
+ </div>
+ <div class="header-right">
+  <span class="live"></span> Live Data
+  <span id="lastUpdate">Last updated: --</span>
+  <span>Auto Refresh: 15 min</span>
+  <button id="themeBtn" title="Toggle theme">☼</button>
+ </div>
+</header>
 
-    <section class="kpi-grid">
-      <article class="kpi blue"><div class="kpi-icon">▣</div><div class="kpi-label">Number of SQDT</div><div class="kpi-value" id="kpiTotal">--</div><div class="kpi-sub" id="kpiTotalSub">Total insiden</div><div class="spark">⌁</div></article>
-      <article class="kpi green"><div class="kpi-icon">◷</div><div class="kpi-label">Open Incidents</div><div class="kpi-value" id="kpiOpen">--</div><div class="kpi-sub" id="kpiOpenSub">Sedang ditangani</div><div class="spark">⌁</div></article>
-      <article class="kpi purple"><div class="kpi-icon">✓</div><div class="kpi-label">Closed Incidents</div><div class="kpi-value" id="kpiClosed">--</div><div class="kpi-sub" id="kpiClosedSub">Selesai</div><div class="spark">⌁</div></article>
-      <article class="kpi cyan"><div class="kpi-icon">⬡</div><div class="kpi-label">SLA Compliance</div><div class="kpi-value" id="kpiSla">--</div><div class="kpi-sub" id="kpiSlaSub">Within SLA</div><div class="spark">⌁</div></article>
-      <article class="kpi orange"><div class="kpi-icon">◴</div><div class="kpi-label">Average MTTR</div><div class="kpi-value" id="kpiMttr">--</div><div class="kpi-sub">Waktu penyelesaian</div><div class="spark">⌁</div></article>
-      <article class="kpi teal"><div class="kpi-icon">◉</div><div class="kpi-label">Average MTTD</div><div class="kpi-value" id="kpiMttd">--</div><div class="kpi-sub">Waktu deteksi</div><div class="spark">⌁</div></article>
-      <article class="kpi red"><div class="kpi-icon">▤</div><div class="kpi-label">Total Traffic Loss</div><div class="kpi-value" id="kpiTraffic">--</div><div class="kpi-sub">Total kehilangan trafik</div><div class="spark">⌁</div></article>
-      <article class="kpi violet"><div class="kpi-icon">♜</div><div class="kpi-label">Achievement CESO</div><div class="kpi-value" id="kpiCeso">--</div><div class="kpi-sub">Rata-rata pencapaian</div><div class="spark">⌁</div></article>
-    </section>
-
-    <section class="charts-grid">
-      <article class="panel span-5" id="severity"><div class="panel-head"><h2>01. Severity Distribution</h2><span class="panel-total" id="severityTotal">Total: --</span></div><div class="chart-wrap"><canvas id="severityChart"></canvas></div><div class="legend-values" id="severityLegend"></div></article>
-      <article class="panel span-7" id="trend"><div class="panel-head"><h2>02. Status &amp; Incident Trend</h2><span class="panel-total" id="statusTotal">Total: --</span></div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></article>
-      <article class="panel span-5" id="rca"><div class="panel-head"><h2>03. RCA Analysis</h2><span class="panel-total" id="rcaTotal">Total: --</span></div><div class="chart-wrap"><canvas id="rcaChart"></canvas></div></article>
-      <article class="panel span-4" id="performance"><div class="panel-head"><h2>04. MTTR &amp; MTTD</h2><span class="panel-total">Rata-rata jam</span></div><div class="chart-wrap"><canvas id="timeChart"></canvas></div></article>
-      <article class="panel span-3" id="traffic"><div class="panel-head"><h2>05. Traffic Loss</h2><span class="panel-total" id="trafficTotal">-- TB</span></div><div class="chart-wrap"><canvas id="trafficChart"></canvas></div></article>
-      <article class="panel span-4" id="sla"><div class="panel-head"><h2>06. SLA &amp; Achievement CESO</h2></div><div class="achievement"><div class="donut-score"><strong id="cesoScore">--</strong><span>CESO</span></div><div class="achievement-info"><strong id="slaScore">--</strong><span>SLA Compliance</span><div class="progress"><i id="cesoProgress"></i></div><small>Target CESO ≥ 90%</small></div></div><div class="chart-wrap short"><canvas id="cesoChart"></canvas></div></article>
-      <article class="panel span-5" id="region"><div class="panel-head"><h2>07. Regional Performance</h2><span class="panel-total" id="regionTotal">Total: --</span></div><div class="chart-wrap"><canvas id="regionChart"></canvas></div><div class="rank-list" id="regionRanks"></div></article>
-      <article class="panel span-3"><div class="panel-head"><h2>08. Period Comparison</h2></div><div class="chart-wrap"><canvas id="compareChart"></canvas></div><div class="compare-stats" id="compareStats"></div></article>
-      <article class="panel span-12" id="detail"><div class="panel-head"><h2>09. Detail Insiden</h2><span class="panel-total" id="tableCount">0 data</span></div><div class="table-scroll"><table><thead><tr><th>SQDT</th><th>Severity</th><th>Status</th><th>Branch / Node</th><th>Kabupaten</th><th>Region</th><th>Circle</th><th>RCA</th><th>MTTR</th><th>MTTD</th><th>Traffic Loss (TB)</th><th>Achievement CESO</th></tr></thead><tbody id="incidentRows"><tr><td colspan="12" class="empty">Menunggu data...</td></tr></tbody></table></div></article>
-    </section>
-    <footer> SQDT Problem Management · Google Sheets API · Dashboard refresh otomatis setiap 15 menit</footer>
-  </main>
+<div class="ticker">
+ <span class="ticker-icon">📢</span>
+ <span class="ticker-label">INFO :</span>
+ <div class="marquee"><span id="tickerText">Menghubungkan ke Google Sheets...</span></div>
+ <span>❯</span>
 </div>
-<script src="app.js"></script>
+
+<section class="toolbar">
+ <label>Periode Utama<input type="date" id="dateFrom"></label>
+ <label>Sampai<input type="date" id="dateTo"></label>
+ <label>Periode Pembanding<input type="date" id="compareFrom"></label>
+ <label>Sampai<input type="date" id="compareTo"></label>
+ <button class="primary" id="applyBtn">▽ Apply Filter</button>
+ <button id="refreshBtn">⟳ Refresh Data</button>
+ <button id="downloadBtn">⇩ Download CSV</button>
+ <span id="message">Menunggu data...</span>
+</section>
+
+<section class="kpis">
+ <article class="kpi blue"><div class="ico">☑</div><div class="name">Total Incidents</div><div class="value" id="total">--</div><div class="sub">Total insiden pada periode aktif</div></article>
+ <article class="kpi green"><div class="ico">◷</div><div class="name">Open Incidents</div><div class="value" id="open">--</div><div class="sub" id="openSub">Sedang ditangani</div></article>
+ <article class="kpi purple"><div class="ico">✓</div><div class="name">Closed Incidents</div><div class="value" id="closed">--</div><div class="sub">Insiden selesai</div></article>
+ <article class="kpi cyan"><div class="ico">⬡</div><div class="name">SLA Compliance</div><div class="value" id="sla">--</div><div class="sub" id="slaSub">Within SLA</div></article>
+ <article class="kpi orange"><div class="ico">◴</div><div class="name">Average MTTR</div><div class="value" id="mttr">--</div><div class="sub">Waktu penyelesaian</div></article>
+</section>
+
+<section class="grid">
+ <article class="panel c4" id="severity">
+  <div class="panel-head"><h2><span>▥</span> 1. Severity Distribution</h2><span class="panel-total" id="severityTotal">Total: --</span></div>
+  <div class="chart"><canvas id="severityChart"></canvas></div>
+  <div class="legend" id="severityLegend"></div>
+ </article>
+
+ <article class="panel c3">
+  <div class="panel-head"><h2><span>◉</span> 2. Status</h2></div>
+  <div class="severity-layout">
+   <div class="donut-wrap"><canvas id="statusChart"></canvas><div class="donut-center"><strong id="statusCenter">--</strong><small>Total</small></div></div>
+   <div id="statusLegend"></div>
+  </div>
+ </article>
+
+ <article class="panel c5" id="trend">
+  <div class="panel-head"><h2><span>▥</span> 3. Incident Trend</h2><span class="panel-total" id="trendTotal"></span></div>
+  <div class="chart"><canvas id="trendChart"></canvas></div>
+ </article>
+
+ <article class="panel c4">
+  <div class="panel-head"><h2><span>▥</span> 4. Severity Open vs Closed</h2></div>
+  <div class="severity-layout">
+   <div class="donut-wrap"><canvas id="severityStatusChart"></canvas><div class="donut-center"><strong id="severityOpenPercent">--</strong><small>Open</small></div></div>
+   <div id="severityStatusLegend"></div>
+  </div>
+ </article>
+
+ <article class="panel c4" id="rca">
+  <div class="panel-head"><h2><span>♟</span> 5. RCA Analysis</h2><span class="panel-total" id="rcaTotal"></span></div>
+  <div class="chart"><canvas id="rcaChart"></canvas></div>
+ </article>
+
+ <article class="panel c4" id="traffic">
+  <div class="panel-head"><h2><span>⌁</span> 6. Traffic Loss</h2><span class="panel-total" id="trafficTotal"></span></div>
+  <div class="chart"><canvas id="trafficChart"></canvas></div>
+ </article>
+
+ <article class="panel c5" id="region">
+  <div class="panel-head"><h2><span>🌐</span> 7. Region Summary</h2><span class="panel-total" id="regionTotal"></span></div>
+  <div class="summary" id="regionSummary">
+   <div><small>Total Region</small><strong>--</strong></div>
+   <div><small>Open</small><strong>--</strong></div>
+   <div><small>Closed</small><strong>--</strong></div>
+   <div><small>Avg. MTTR</small><strong>--</strong></div>
+  </div>
+  <div class="chart small"><canvas id="regionChart"></canvas></div>
+  <div class="rank" id="regionRanks"></div>
+ </article>
+
+ <article class="panel c7" id="performance">
+  <div class="panel-head"><h2><span>◷</span> 8. MTTR & MTTD</h2><span class="panel-total">Average hours</span></div>
+  <div class="chart"><canvas id="timeChart"></canvas></div>
+ </article>
+
+ <article class="panel c5" id="achievement">
+  <div class="panel-head"><h2><span>🏆</span> 9. Achievement CESO</h2></div>
+  <div class="achievement">
+   <div class="score-ring"><div id="ceso">--</div></div>
+   <div class="score-info"><strong id="cesoLarge">--</strong><p>Achievement CESO · Target ≥ 90%</p><div class="progress"><div id="cesoProgress"></div></div></div>
+  </div>
+ </article>
+
+ <article class="panel c7" id="comparison">
+  <div class="panel-head"><h2><span>▥</span> 10. Period Comparison</h2></div>
+  <div class="chart"><canvas id="compareChart"></canvas></div>
+  <div class="panel-total" id="compareLabel"></div>
+ </article>
+
+ <article class="panel c12">
+  <div class="panel-head"><h2><span>◉</span> Period Comparison Summary</h2></div>
+  <div class="summary">
+   <div><small>Total Incidents</small><strong id="sumTotal">--</strong></div>
+   <div><small>Open</small><strong id="sumOpen">--</strong></div>
+   <div><small>Closed</small><strong id="sumClosed">--</strong></div>
+   <div><small>Average MTTR</small><strong id="sumMttr">--</strong></div>
+  </div>
+ </article>
+
+ <article class="panel c12" id="detail">
+  <div class="panel-head"><h2><span>▤</span> 11. Detail Insiden</h2><span class="panel-total" id="tableCount">0 data</span></div>
+  <div class="table-scroll"><table>
+   <thead><tr><th>SQDT</th><th>Severity</th><th>Status</th><th>Branch / Node</th><th>Kabupaten</th><th>Region</th><th>Circle</th><th>RCA</th><th>MTTR</th><th>MTTD</th><th>Traffic Loss (TB)</th><th>Achievement CESO</th></tr></thead>
+   <tbody id="rows"><tr><td colspan="12">Menunggu data...</td></tr></tbody>
+  </table></div>
+ </article>
+</section>
+<footer>SQDT Problem Management · Google Sheets + GitHub Pages · Automatic Refresh 15 Minutes</footer>
+</main>
+</div>
+
+<script>
+// =====================================================
+// KONFIGURASI GOOGLE APPS SCRIPT
+// =====================================================
+const API_URL = "https://script.google.com/macros/s/AKfycbxN1obfqjAXsTF7aq9tZQ1nrLGL64xNwx5PDrCG8FxWqmcZm__XKO4sMHP9du4_es8Z3Q/exec";
+const REFRESH_MINUTES = 15;
+
+// =====================================================
+// UTILITIES
+// =====================================================
+let allData = [];
+let filteredData = [];
+let charts = {};
+
+const $ = id => document.getElementById(id);
+const fmt = n => Number(n||0).toLocaleString("id-ID",{maximumFractionDigits:2});
+const norm = s => String(s??"").toLowerCase().replace(/[^a-z0-9]/g,"");
+const first = (obj, aliases) => {
+ const keys = Object.keys(obj||{});
+ for(const a of aliases){
+  const found = keys.find(k=>norm(k)===norm(a));
+  if(found && obj[found]!=="" && obj[found]!=null) return obj[found];
+ }
+ return "";
+};
+function number(v){
+ if(typeof v==="number") return Number.isFinite(v)?v:0;
+ let s=String(v??"").trim().replace(/\s/g,"").replace(/[^\d,.-]/g,"");
+ if(!s) return 0;
+ if(s.includes(",") && s.includes(".")){
+  s=s.lastIndexOf(",")>s.lastIndexOf(".")?s.replace(/\./g,"").replace(",","."):s.replace(/,/g,"");
+ }else if(s.includes(",")){
+  s=s.replace(",",".");
+ }
+ const n=Number(s);
+ return Number.isFinite(n)?n:0;
+}
+function dateValue(row){
+ const v=first(row,["Incident Date","Time Open","Open Date","Date Open","Created Date","Tanggal","Initial Posting","Date","Timestamp"]);
+ if(!v) return null;
+ const d=new Date(v);
+ return isNaN(d)?null:d;
+}
+function isClosed(row){
+ const s=String(first(row,["Status","Incident Status"])).toUpperCase();
+ return ["CLOSED","CLOSE","RESOLVED","COMPLETE","COMPLETED"].some(x=>s.includes(x));
+}
+function mttr(row){
+ return number(first(row,["MTTR","MTTR (Hours)","Average MTTR","Resolution Time"]));
+}
+function mttd(row){
+ return number(first(row,["MTTD","MTTD 1 (terhadap Initial Posting)","MTTD (Hours)","Detection Time"]));
+}
+function severity(row){
+ return String(first(row,["Severity","Priority","Incident Severity"])||"Unknown").trim().toUpperCase();
+}
+function region(row){return String(first(row,["Region","Regional"])||"Unknown").trim()}
+function rca(row){return String(first(row,["RCA","Root Cause","Root Cause Analysis"])||"Unknown").trim()}
+function traffic(row){return number(first(row,["TRAFFIC LOSS (TB) TOTAL","Traffic Loss (TB)","Traffic Loss","Total Traffic Loss"]))}
+function ceso(row){return number(first(row,["Achievement CESO","CESO","CESO Achievement"]))}
+function slaValue(row){
+ return first(row,["SLA Compliance","SLA Status","Within SLA","SLA Achievement"]);
+}
+function withinSla(row){
+ const s=String(slaValue(row)).toUpperCase();
+ if(["TRUE","YES","WITHIN SLA","ACHIEVED","PASS","MET"].includes(s))return true;
+ if(["FALSE","NO","OVER SLA","BREACH","FAILED","NOT MET"].includes(s))return false;
+ if(s.includes("WITHIN")||s.includes("ACHIEVED"))return true;
+ if(s.includes("OVER")||s.includes("BREACH"))return false;
+ return null;
+}
+function average(list,fn){
+ const values=list.map(fn).filter(v=>Number.isFinite(v)&&v!==0);
+ return values.length?values.reduce((a,b)=>a+b,0)/values.length:0;
+}
+function pct(a,b){return b?((a/b)*100):0}
+function safeText(s){
+ return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function setMessage(text,error=false){
+ $("message").textContent=text;
+ $("message").style.color=error?"#ff758c":"#00e5a0";
+}
+
+// =====================================================
+// CHART HELPERS
+// =====================================================
+const gridColor="#173655";
+const tickColor="#bdd5ed";
+function chart(id,type,data,options={}){
+ if(charts[id])charts[id].destroy();
+ const ctx=$(id);
+ if(!ctx)return;
+ charts[id]=new Chart(ctx,{
+  type,data,
+  options:{
+   responsive:true,maintainAspectRatio:false,
+   animation:{duration:500},
+   plugins:{
+    legend:{labels:{color:tickColor,font:{size:9},usePointStyle:true,boxWidth:8}},
+    tooltip:{backgroundColor:"#061a33",titleColor:"#fff",bodyColor:"#d9ecff",borderColor:"#168cff",borderWidth:1}
+   },
+   scales:type==="doughnut"?{}:{
+    x:{ticks:{color:tickColor,font:{size:9}},grid:{color:gridColor}},
+    y:{beginAtZero:true,ticks:{color:tickColor,font:{size:9}},grid:{color:gridColor}}
+   },
+   ...options
+  }
+ });
+}
+function fillSelect(id,values){
+ const el=$(id),old=el.value;
+ el.innerHTML='<option value="">All</option>'+values.map(v=>`<option value="${safeText(v)}">${safeText(v)}</option>`).join("");
+ if(values.includes(old))el.value=old;
+}
+function unique(values){return [...new Set(values.filter(v=>v&&v!=="Unknown"))].sort()}
+
+// =====================================================
+// FILTER DATA
+// =====================================================
+function applyFilters(){
+ const search=$("search").value.toLowerCase();
+ const sev=$("fSeverity").value;
+ const reg=$("fRegion").value;
+ const status=$("fStatus").value;
+ const circle=$("fCircle").value;
+ const cause=$("fRca").value;
+ const from=$("dateFrom").value?new Date($("dateFrom").value+"T00:00:00"):null;
+ const to=$("dateTo").value?new Date($("dateTo").value+"T23:59:59"):null;
+
+ filteredData=allData.filter(r=>{
+  const id=String(first(r,["Service Incident Case","SQDT","Incident ID","Case ID"]));
+  const d=dateValue(r);
+  if(search&&!JSON.stringify(r).toLowerCase().includes(search))return false;
+  if(sev&&severity(r)!==sev)return false;
+  if(reg&&region(r)!==reg)return false;
+  if(status&&String(first(r,["Status"])).toUpperCase()!==status)return false;
+  if(circle&&String(first(r,["Circle"])).trim()!==circle)return false;
+  if(cause&&rca(r)!==cause)return false;
+  if(from&&(!d||d<from))return false;
+  if(to&&(!d||d>to))return false;
+  return true;
+ });
+ renderDashboard();
+}
+
+// =====================================================
+// MAIN DASHBOARD
+// =====================================================
+function renderDashboard(){
+ const data=filteredData;
+ const total=data.length;
+ const open=data.filter(r=>!isClosed(r)).length;
+ const closed=total-open;
+ const slaRows=data.map(withinSla).filter(v=>v!==null);
+ const sla=pct(slaRows.filter(Boolean).length,slaRows.length);
+ const avgMttr=average(data,mttr);
+ const avgMttd=average(data,mttd);
+ const trafficTotal=data.reduce((s,r)=>s+traffic(r),0);
+ const cesoRows=data.map(ceso).filter(v=>v!==0);
+ const avgCeso=average(data,ceso);
+
+ $("total").textContent=fmt(total);
+ $("open").textContent=fmt(open);
+ $("closed").textContent=fmt(closed);
+ $("sla").textContent=slaRows.length?fmt(sla)+"%":"--";
+ $("slaSub").textContent=slaRows.length?fmt(slaRows.filter(Boolean).length)+" Within SLA | "+fmt(slaRows.length-slaRows.filter(Boolean).length)+" Over SLA":"SLA data belum tersedia";
+ $("mttr").textContent=fmt(avgMttr)+" jam";
+ $("statusCenter").textContent=fmt(total);
+ $("trendTotal").textContent=fmt(total)+" incidents";
+ $("trafficTotal").textContent=fmt(trafficTotal)+" TB";
+ $("regionTotal").textContent="Total: "+fmt(total);
+ $("sumTotal").textContent=fmt(total);
+ $("sumOpen").textContent=fmt(open);
+ $("sumClosed").textContent=fmt(closed);
+ $("sumMttr").textContent=fmt(avgMttr)+" jam";
+
+ const today=new Date();
+ const todayOpen=data.filter(r=>{
+  if(isClosed(r))return false;
+  const d=dateValue(r);
+  return d&&d.toDateString()===today.toDateString();
+ });
+ $("openSub").textContent=fmt(open)+" dari "+fmt(total)+" total";
+ $("tickerText").textContent=
+  `DATA YANG MASIH OPEN TODAY: ${fmt(todayOpen.length)} SQDT  |  TOTAL OPEN: ${fmt(open)} SQDT  |  CLOSED: ${fmt(closed)} SQDT  |  Mohon segera lakukan tindak lanjut sesuai SLA.`;
+
+ // Severity
+ const severityOrder=["P1","P2","P3","L1","L2"];
+ const sevColors=["#ff3860","#00cf83","#ffbd16","#9849ff","#08cfff"];
+ const sevValues=severityOrder.map(s=>data.filter(r=>severity(r)===s).length);
+ $("severityTotal").textContent="Total: "+fmt(total);
+ $("severityLegend").innerHTML=severityOrder.map((s,i)=>
+  `<span style="color:${sevColors[i]}">● ${s} <b>${fmt(sevValues[i])}</b></span>`
+ ).join("");
+ chart("severityChart","bar",{
+  labels:severityOrder,
+  datasets:[{data:sevValues,backgroundColor:sevColors,borderRadius:5,borderSkipped:false}]
+ },{
+  plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmt(c.raw)+" insiden"}}},
+  scales:{x:{ticks:{color:tickColor},grid:{display:false}},y:{beginAtZero:true,ticks:{color:tickColor,callback:v=>fmt(v)},grid:{color:gridColor}}}
+ });
+
+ // Status donut
+ chart("statusChart","doughnut",{
+  labels:["Open","Closed"],
+  datasets:[{data:[open,closed],backgroundColor:["#00d68a","#078cff"],borderColor:"#071d3a",borderWidth:3,hoverOffset:5}]
+ },{cutout:"69%"});
+ $("statusLegend").innerHTML=`
+  <p style="color:#00d68a">● Open<br><b style="font-size:17px;color:white">${fmt(open)}</b><br>${fmt(pct(open,total))}%</p>
+  <p style="color:#168fff">● Closed<br><b style="font-size:17px;color:white">${fmt(closed)}</b><br>${fmt(pct(closed,total))}%</p>`;
+
+ // Severity Open vs Closed
+ const openSeverity=data.filter(r=>!isClosed(r)).length;
+ const closedSeverity=data.filter(isClosed).length;
+ $("severityOpenPercent").textContent=fmt(pct(openSeverity,total))+"%";
+ $("severityStatusLegend").innerHTML=`
+ <p style="color:#ff941e">● Open<br><b style="font-size:17px;color:white">${fmt(openSeverity)}</b></p>
+ <p style="color:#078cff">● Closed<br><b style="font-size:17px;color:white">${fmt(closedSeverity)}</b></p>`;
+ chart("severityStatusChart","doughnut",{
+  labels:["Open","Closed"],
+  datasets:[{data:[openSeverity,closedSeverity],backgroundColor:["#ff941e","#078cff"],borderColor:"#071d3a",borderWidth:3}]
+ },{cutout:"68%"});
+
+ // RCA
+ const rcaMap={};
+ data.forEach(r=>{const k=rca(r);rcaMap[k]=(rcaMap[k]||0)+1});
+ const rcaEntries=Object.entries(rcaMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
+ $("rcaTotal").textContent="Total: "+fmt(total);
+ chart("rcaChart","bar",{
+  labels:rcaEntries.map(x=>x[0]),
+  datasets:[{data:rcaEntries.map(x=>x[1]),backgroundColor:"#168fff",borderRadius:4}]
+ },{
+  indexAxis:"y",
+  plugins:{legend:{display:false}},
+  scales:{x:{ticks:{color:tickColor},grid:{color:gridColor}},y:{ticks:{color:tickColor,font:{size:9}},grid:{display:false}}}
+ });
+
+ // Traffic Loss by region
+ const trafficMap={};
+ data.forEach(r=>{const k=region(r);trafficMap[k]=(trafficMap[k]||0)+traffic(r)});
+ const trafficEntries=Object.entries(trafficMap).sort((a,b)=>b[1]-a[1]).slice(0,12);
+ chart("trafficChart","line",{
+  labels:trafficEntries.map(x=>x[0]),
+  datasets:[{label:"Traffic Loss TB",data:trafficEntries.map(x=>x[1]),borderColor:"#ff941e",backgroundColor:"#ff941e44",fill:true,tension:.3,pointRadius:3}]
+ });
+
+ // Region Summary
+ const regions=Object.entries(data.reduce((o,r)=>{
+  const k=region(r);o[k]=(o[k]||0)+1;return o;
+ },{})).sort((a,b)=>b[1]-a[1]);
+ const top=regions.slice(0,10);
+ const mainRegion=regions[0]?.[0]||"--";
+ $("regionSummary").innerHTML=`
+  <div><small>Total Region</small><strong>${fmt(regions.length)}</strong></div>
+  <div><small>Open</small><strong>${fmt(open)}</strong></div>
+  <div><small>Closed</small><strong>${fmt(closed)}</strong></div>
+  <div><small>Avg. MTTR</small><strong>${fmt(avgMttr)}</strong></div>`;
+ chart("regionChart","bar",{
+  labels:top.map(x=>x[0]),
+  datasets:[{data:top.map(x=>x[1]),backgroundColor:"#168fff",borderRadius:4}]
+ },{
+  indexAxis:"y",plugins:{legend:{display:false}},
+  scales:{x:{ticks:{color:tickColor},grid:{color:gridColor}},y:{ticks:{color:tickColor,font:{size:9}},grid:{display:false}}}
+ });
+ $("regionRanks").innerHTML=top.slice(0,5).map((x,i)=>`<span>${i+1}. ${safeText(x[0])} · ${fmt(x[1])}</span>`).join("");
+
+ // MTTR / MTTD
+ const monthMap={};
+ data.forEach(r=>{
+  const d=dateValue(r);if(!d)return;
+  const key=d.toLocaleDateString("en-US",{month:"short",year:"2-digit"});
+  if(!monthMap[key])monthMap[key]={mttr:[],mttd:[]};
+  if(mttr(r)!==0)monthMap[key].mttr.push(mttr(r));
+  if(mttd(r)!==0)monthMap[key].mttd.push(mttd(r));
+ });
+ const months=Object.keys(monthMap);
+ chart("timeChart","bar",{
+  labels:months,
+  datasets:[
+   {label:"MTTR (jam)",data:months.map(k=>average(monthMap[k].mttr,x=>x)),backgroundColor:"#078cff"},
+   {label:"MTTD (jam)",data:months.map(k=>average(monthMap[k].mttd,x=>x)),backgroundColor:"#a24dff"}
+  ]
+ });
+
+ // CESO
+ $("ceso").textContent=cesoRows.length?fmt(avgCeso)+"%":"--";
+ $("cesoLarge").textContent=cesoRows.length?fmt(avgCeso)+"%":"--";
+ $("cesoProgress").style.width=Math.max(0,Math.min(100,avgCeso))+"%";
+
+ // Period Comparison
+ const cf=$("compareFrom").value?new Date($("compareFrom").value+"T00:00:00"):null;
+ const ct=$("compareTo").value?new Date($("compareTo").value+"T23:59:59"):null;
+ const compare=allData.filter(r=>{
+  const d=dateValue(r);
+  if(!cf&&!ct)return false;
+  return d&&(!cf||d>=cf)&&(!ct||d<=ct);
+ });
+ const cOpen=compare.filter(r=>!isClosed(r)).length;
+ const cClosed=compare.length-cOpen;
+ const cMttr=average(compare,mttr);
+ chart("compareChart","bar",{
+  labels:["Total SQDT","Open","Closed","MTTR (jam)"],
+  datasets:[
+   {label:"Periode Utama",data:[total,open,closed,avgMttr],backgroundColor:"#078cff"},
+   {label:"Periode Pembanding",data:[compare.length,cOpen,cClosed,cMttr],backgroundColor:"#994cff"}
+  ]
+ });
+ $("compareLabel").textContent=`Periode pembanding: ${compare.length?fmt(compare.length)+" data":"Belum ada data pada periode pembanding"}`;
+
+ // Detail table
+ $("tableCount").textContent=fmt(data.length)+" data";
+ $("rows").innerHTML=data.slice(0,1000).map(r=>`
+ <tr>
+ <td>${safeText(first(r,["Service Incident Case","SQDT","Incident ID","Case ID"]))}</td>
+ <td>${safeText(severity(r))}</td>
+ <td>${safeText(first(r,["Status"]))}</td>
+ <td>${safeText(first(r,["BRANCH / NODE","Branch / Node","Branch","Node"]))}</td>
+ <td>${safeText(first(r,["Kabupaten","District"]))}</td>
+ <td>${safeText(region(r))}</td>
+ <td>${safeText(first(r,["Circle"]))}</td>
+ <td>${safeText(rca(r))}</td>
+ <td>${fmt(mttr(r))}</td>
+ <td>${fmt(mttd(r))}</td>
+ <td>${fmt(traffic(r))}</td>
+ <td>${fmt(ceso(r))}</td>
+ </tr>`).join("")||'<tr><td colspan="12" style="text-align:center">Tidak ada data</td></tr>';
+}
+
+// =====================================================
+// LOAD GOOGLE SHEETS
+// =====================================================
+async function loadData(){
+ setMessage("Mengambil data Google Sheets...");
+ $("refreshBtn").disabled=true;
+ try{
+  const response=await fetch(API_URL+"&_="+Date.now(),{cache:"no-store"});
+  if(!response.ok)throw new Error("HTTP "+response.status);
+  const json=await response.json();
+  if(json.success===false)throw new Error(json.error||"API mengembalikan error");
+
+  let rows=Array.isArray(json.data)?json.data:[];
+  if(!rows.length&&Array.isArray(json.values)&&json.values.length>1){
+   const headers=json.values[0];
+   rows=json.values.slice(1).map(row=>Object.fromEntries(headers.map((h,i)=>[h,row[i]??""])));
+  }
+  if(!rows.length)throw new Error("Data kosong. Periksa tab rawdata dan Apps Script.");
+
+  allData=rows;
+  fillSelect("fSeverity",unique(allData.map(severity)));
+  fillSelect("fRegion",unique(allData.map(region)));
+  fillSelect("fStatus",unique(allData.map(r=>String(first(r,["Status"])).toUpperCase())));
+  fillSelect("fCircle",unique(allData.map(r=>String(first(r,["Circle"])).trim())));
+  fillSelect("fRca",unique(allData.map(rca)));
+
+  applyFilters();
+  $("lastUpdate").textContent="Last updated: "+new Date().toLocaleString("id-ID");
+  setMessage(fmt(allData.length)+" baris berhasil dimuat");
+ }catch(err){
+  console.error(err);
+  setMessage("Gagal: "+err.message,true);
+  $("tickerText").textContent="PERHATIAN: Koneksi data Google Sheets bermasalah. Periksa URL Apps Script dan akses Web App.";
+ }finally{
+  $("refreshBtn").disabled=false;
+ }
+}
+
+// =====================================================
+// CSV EXPORT
+// =====================================================
+function downloadCSV(){
+ const headers=["SQDT","Severity","Status","Branch / Node","Kabupaten","Region","Circle","RCA","MTTR","MTTD","Traffic Loss","Achievement CESO"];
+ const rows=filteredData.map(r=>[
+  first(r,["Service Incident Case","SQDT","Incident ID","Case ID"]),
+  severity(r),first(r,["Status"]),
+  first(r,["BRANCH / NODE","Branch / Node","Branch","Node"]),
+  first(r,["Kabupaten"]),region(r),
+  first(r,["Circle"]),rca(r),mttr(r),mttd(r),traffic(r),ceso(r)
+ ]);
+ const csv=[headers,...rows].map(row=>row.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\r\n");
+ const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement("a");a.href=url;a.download="SQDT_Problem_Management.csv";a.click();
+ URL.revokeObjectURL(url);
+}
+
+// =====================================================
+// EVENTS
+// =====================================================
+$("refreshBtn").addEventListener("click",loadData);
+$("applyBtn").addEventListener("click",applyFilters);
+$("downloadBtn").addEventListener("click",downloadCSV);
+["search","fSeverity","fRegion","fStatus","fCircle","fRca"].forEach(id=>{
+ $(id).addEventListener("input",applyFilters);
+ $(id).addEventListener("change",applyFilters);
+});
+$("themeBtn").addEventListener("click",()=>{
+ document.body.classList.toggle("light");
+});
+setInterval(loadData,REFRESH_MINUTES*60*1000);
+loadData();
+</script>
 </body>
 </html>
